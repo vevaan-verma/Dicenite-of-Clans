@@ -15,7 +15,7 @@ public class ObjectManager : MonoBehaviour {
 
     }
 
-    public int PlaceObject(GameObject prefab, Vector3 gridPosition) {
+    public int PlaceObject(GameObject prefab) {
 
         Transform previewObject = previewSystem.GetPreviewObject();
         Vector2Int size = previewSystem.size;

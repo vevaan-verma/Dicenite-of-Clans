@@ -2179,6 +2179,8 @@ MonoBehaviour:
   diceStillTime: 0.1
   buildersDice: 2
   attackDice: 3
+  gridWidth: 0
+  gridHeight: 0
 --- !u!1 &1358633154
 GameObject:
   m_ObjectHideFlags: 0
@@ -2300,6 +2302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   diceHUD: {fileID: 243649223}
+  loadingScreen: {fileID: 2095280642}
   healthSlider: {fileID: 1915993618}
   healthText: {fileID: 160393170}
   woodText: {fileID: 1378252344}
@@ -2313,9 +2316,8 @@ MonoBehaviour:
   fadeDuration: 0.7
   fadeOpacity: 0.2
   kingdomSceneName: KingdomScene
-  kingdomFadeOpacity: 1
-  kingdomFadeDuration: 0.6
-  kingdomLoadingPanel: {fileID: 2095280642}
+  loadingFadeOpacity: 1
+  loadingFadeDuration: 1
 --- !u!114 &1374867329
 MonoBehaviour:
   m_ObjectHideFlags: 0

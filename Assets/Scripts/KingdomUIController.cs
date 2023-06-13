@@ -1,35 +1,41 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class KingdomUIController : MonoBehaviour {
 
     [Header("UI References")]
     [SerializeField] private CanvasGroup kingdomHUD;
-    [SerializeField] private Image kingdomLoadingPanel;
+    [SerializeField] private Image loadingScreen;
     [SerializeField] private Button storeButton;
     [SerializeField] private CanvasGroup storeHUD;
     [SerializeField] private Button storeCloseButton;
+    [SerializeField] private Button diceButton;
 
     [Header("Animations")]
     [SerializeField] private float kingdomFadeDuration;
     [SerializeField] private float storeFadeDuration;
     [SerializeField][Range(0f, 1f)] private float storeOpacity;
-    private Coroutine kingdomFadeCoroutine;
     private Coroutine fadeKingdomHUDCoroutine;
     private Coroutine storeFadeCoroutine;
 
+    [Header("Scene Transitions")]
+    [SerializeField] private string diceSceneName;
+    [SerializeField] private float loadingFadeDuration;
+    [SerializeField] private float loadingFadeOpacity;
+    private Coroutine loadingFadeCoroutine;
+
     private void Start() {
 
-        if (kingdomFadeCoroutine != null) {
+        if (loadingFadeCoroutine != null) {
 
-            StopCoroutine(kingdomFadeCoroutine);
+            StopCoroutine(loadingFadeCoroutine);
 
         }
 
-        kingdomLoadingPanel.color = new Color(kingdomLoadingPanel.color.r, kingdomLoadingPanel.color.g, kingdomLoadingPanel.color.b, 1f);
-
-        kingdomFadeCoroutine = StartCoroutine(FadeLoadingScreen(kingdomLoadingPanel.color, new Color(kingdomLoadingPanel.color.r, kingdomLoadingPanel.color.g, kingdomLoadingPanel.color.b, 0f)));
+        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
+        StartFadeOutLoadingScreen(new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f));
 
         storeButton.onClick.AddListener(OpenStoreHUD);
         storeCloseButton.onClick.AddListener(CloseStoreHUD);
@@ -37,25 +43,63 @@ public class KingdomUIController : MonoBehaviour {
         storeHUD.alpha = 0f;
         storeHUD.gameObject.SetActive(false);
 
+        diceButton.onClick.AddListener(LoadDiceScene);
+
     }
 
-    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor) {
+    private void LoadDiceScene() {
+
+        StartFadeOutKingdomHUD(0f);
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
+
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, loadingFadeOpacity), true, diceSceneName));
+
+    }
+
+    private void StartFadeOutLoadingScreen(Color targetColor) {
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, targetColor, false, ""));
+
+    }
+
+    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor, bool loadScene, string sceneName) {
 
         float currentTime = 0f;
-        kingdomLoadingPanel.gameObject.SetActive(true);
+        loadingScreen.gameObject.SetActive(true);
 
-        while (currentTime < kingdomFadeDuration) {
+        while (currentTime < loadingFadeDuration) {
 
             currentTime += Time.deltaTime;
-            kingdomLoadingPanel.color = Color.Lerp(startColor, targetColor, currentTime / kingdomFadeDuration);
+            loadingScreen.color = Color.Lerp(startColor, targetColor, currentTime / loadingFadeDuration);
             yield return null;
 
         }
 
-        kingdomLoadingPanel.color = targetColor;
-        kingdomLoadingPanel.gameObject.SetActive(false);
-        kingdomFadeCoroutine = null;
+        loadingScreen.color = targetColor;
+        loadingFadeCoroutine = null;
 
+        if (loadScene) {
+
+            SceneManager.LoadSceneAsync(sceneName);
+
+        } else {
+
+            loadingScreen.gameObject.SetActive(false);
+
+        }
     }
 
     private void OpenStoreHUD() {

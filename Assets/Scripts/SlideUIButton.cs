@@ -45,7 +45,7 @@ public class SlideUIButton : MonoBehaviour {
 
         }
 
-        slideCoroutine = StartCoroutine(SlideKingdomButton(transform.position, slideInitialPosition));
+        slideCoroutine = StartCoroutine(SlideButton(transform.position, slideInitialPosition));
         button.interactable = false;
 
     }
@@ -58,12 +58,12 @@ public class SlideUIButton : MonoBehaviour {
 
         }
 
-        slideCoroutine = StartCoroutine(SlideKingdomButton(transform.position, slideTarget.position));
+        slideCoroutine = StartCoroutine(SlideButton(transform.position, slideTarget.position));
         button.interactable = true;
 
     }
 
-    private IEnumerator SlideKingdomButton(Vector2 startPosition, Vector2 targetPosition) {
+    private IEnumerator SlideButton(Vector2 startPosition, Vector2 targetPosition) {
 
         float currentTime = 0f;
 

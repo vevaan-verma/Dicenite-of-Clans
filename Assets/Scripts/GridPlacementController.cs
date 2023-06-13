@@ -3,7 +3,8 @@ using UnityEngine;
 public class GridPlacementController : MonoBehaviour {
 
     [Header("References")]
-    [SerializeField] private ObjectManager objectPlacer;
+    [SerializeField] private ObjectManager objectManager;
+    private GameManager gameManager;
     private IBuildingState buildingState;
     private InputManager inputManager;
 
@@ -24,6 +25,7 @@ public class GridPlacementController : MonoBehaviour {
 
     private void Start() {
 
+        gameManager = FindObjectOfType<GameManager>();
         inputManager = FindObjectOfType<InputManager>();
         audioManager = FindObjectOfType<AudioManager>();
 
@@ -58,7 +60,7 @@ public class GridPlacementController : MonoBehaviour {
 
         StopPlacement();
         gridOverlay.gameObject.SetActive(true);
-        buildingState = new PlacementState(objectPlacer, stackableData, nonStackableData, grid, previewSystem, objectDatabase, ID, audioManager);
+        buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, ID, audioManager);
         inputManager.OnClick += PlaceObject;
         inputManager.OnExit += StopPlacement;
 
@@ -72,7 +74,7 @@ public class GridPlacementController : MonoBehaviour {
 
         }
 
-        buildingState.OnAction(grid.WorldToCell(inputManager.GetSelectedGridPosition()));
+        buildingState.OnAction(grid.WorldToCell(objectManager.previewSystem.previewObject.position));
 
     }
 
@@ -100,7 +102,7 @@ public class GridPlacementController : MonoBehaviour {
 
         StopPlacement();
         gridOverlay.SetActive(true);
-        buildingState = new RemovingState(objectPlacer, stackableData, nonStackableData, grid, previewSystem, audioManager);
+        buildingState = new RemovingState(objectManager, stackableData, nonStackableData, grid, previewSystem, audioManager);
         inputManager.OnClick += PlaceObject;
         inputManager.OnExit += StopPlacement;
 

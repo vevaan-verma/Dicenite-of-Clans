@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlacementState : IBuildingState {
 
     [Header("References")]
+    private GameManager gameManager;
     private ObjectManager objectManager;
 
     [Header("Grid Data")]
@@ -21,9 +22,10 @@ public class PlacementState : IBuildingState {
     [Header("Audio")]
     private AudioManager audioManager;
 
-    public PlacementState(ObjectManager objectPlacer, GridData stackableData, GridData nonStackableData, Grid grid, ObjectPreviewSystem previewSystem, PlaceableObjectDatabase objectDatabase, int ID, AudioManager audioManager) {
+    public PlacementState(GameManager gameManager, ObjectManager objectManager, GridData stackableData, GridData nonStackableData, Grid grid, ObjectPreviewSystem previewSystem, PlaceableObjectDatabase objectDatabase, int ID, AudioManager audioManager) {
 
-        this.objectManager = objectPlacer;
+        this.gameManager = gameManager;
+        this.objectManager = objectManager;
         this.stackableData = stackableData;
         this.nonStackableData = nonStackableData;
         this.grid = grid;
@@ -37,7 +39,7 @@ public class PlacementState : IBuildingState {
         if (selectedObjectIndex > -1) {
 
             audioManager.PlaySound(AudioManager.SoundType.Click);
-            previewSystem.ShowPlacementPreview(objectDatabase.objectData[selectedObjectIndex].prefab, objectDatabase.objectData[selectedObjectIndex].size, true);
+            previewSystem.ShowPlacementPreview(objectDatabase.objectData[selectedObjectIndex].prefab, objectDatabase.objectData[selectedObjectIndex].size);
 
         } else {
 
@@ -47,6 +49,7 @@ public class PlacementState : IBuildingState {
         }
 
         this.audioManager = audioManager;
+
     }
 
     public void OnAction(Vector3Int gridPosition) {
@@ -60,7 +63,7 @@ public class PlacementState : IBuildingState {
 
         audioManager.PlaySound(AudioManager.SoundType.Place);
 
-        int index = objectManager.PlaceObject(objectDatabase.objectData[selectedObjectIndex].prefab, grid.CellToWorld(gridPosition));
+        int index = objectManager.PlaceObject(objectDatabase.objectData[selectedObjectIndex].prefab);
 
         (objectDatabase.objectData[selectedObjectIndex].stackable ? stackableData : nonStackableData).AddObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, objectDatabase.objectData[selectedObjectIndex].ID, index, objectManager.previewSystem.previewObject.rotation.eulerAngles.y);
 
@@ -81,6 +84,33 @@ public class PlacementState : IBuildingState {
     }
 
     public void UpdateState(Vector3Int gridPosition) {
+
+        int gridWidth = gameManager.GetGridWidth();
+        int gridHeight = gameManager.GetGridHeight();
+
+        if (grid.transform.position.x + gridPosition.x < grid.transform.position.x - Mathf.Floor(gridWidth / 2f)) {
+
+            gridPosition.x = (int) (grid.transform.position.x - Mathf.Floor(gridWidth / 2f));
+
+        }
+
+        if (grid.transform.position.x + gridPosition.x > grid.transform.position.x + Mathf.Floor(gridWidth / 2f) - previewSystem.size.x) {
+
+            gridPosition.x = (int) (grid.transform.position.x + Mathf.Floor(gridWidth / 2f) - previewSystem.size.x);
+
+        }
+
+        if (grid.transform.position.z + gridPosition.z < grid.transform.position.z - Mathf.Floor(gridHeight / 2f)) {
+
+            gridPosition.z = (int) (grid.transform.position.z - Mathf.Floor(gridHeight / 2f));
+
+        }
+
+        if (grid.transform.position.z + gridPosition.z > grid.transform.position.z + Mathf.Floor(gridHeight / 2f) - previewSystem.size.y) {
+
+            gridPosition.z = (int) (grid.transform.position.z + Mathf.Floor(gridHeight / 2f) - previewSystem.size.y);
+
+        }
 
         previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), CheckPlacementValidity(gridPosition));
 

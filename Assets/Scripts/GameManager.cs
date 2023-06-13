@@ -6,6 +6,14 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private float diceStillTime;
     [SerializeField] private int buildersDice;
     [SerializeField] private int attackDice;
+    [SerializeField] private int gridWidth;
+    [SerializeField] private int gridHeight;
+
+    private void Start() {
+
+        //DontDestroyOnLoad(gameObject);
+
+    }
 
     public void ClearAllDice() {
 
@@ -31,6 +39,18 @@ public class GameManager : MonoBehaviour {
     public int GetAttackDice() {
 
         return attackDice;
+
+    }
+
+    public int GetGridWidth() {
+
+        return gridWidth;
+
+    }
+
+    public int GetGridHeight() {
+
+        return gridHeight;
 
     }
 }

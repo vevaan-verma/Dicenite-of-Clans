@@ -11,8 +11,6 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     [Header("Grid Settings")]
     [SerializeField] private Transform grid;
-    [SerializeField] private int gridWidth;
-    [SerializeField] private int gridHeight;
 
     [Header("Preview Materials")]
     [SerializeField] private Material previewMaterial;
@@ -51,18 +49,14 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     }
 
-    public void ShowPlacementPreview(GameObject prefab, Vector2Int size, bool newPrefab) {
+    public void ShowPlacementPreview(GameObject prefab, Vector2Int size) {
 
         this.prefab = prefab;
         this.size = size;
 
-        if (newPrefab) {
+        yRotation = 0f;
 
-            yRotation = 0f;
-
-        }
-
-        PrepareCellIndicator(size);
+        PrepareCellIndicator(size, true);
         previewObject = Instantiate(prefab, cellIndicator.transform.position, Quaternion.Euler(0f, yRotation, 0f)).transform;
         PreparePreview();
         cellIndicator.SetActive(true);
@@ -72,26 +66,25 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     }
 
-    private void PreparePreview() {
+    public void UpdatePlacementPreview(GameObject prefab, Vector2Int size, float yRotation) {
 
-        Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+        HidePlacementPreview();
 
-        foreach (Renderer renderer in renderers) {
+        this.prefab = prefab;
+        this.size = size;
+        this.yRotation = yRotation;
 
-            Material[] materials = renderer.materials;
+        PrepareCellIndicator(size, false);
+        previewObject = Instantiate(prefab, cellIndicator.transform.position, Quaternion.Euler(0f, yRotation, 0f)).transform;
+        PreparePreview();
+        cellIndicator.SetActive(true);
 
-            for (int i = 0; i < materials.Length; i++) {
+        inputManager.OnRotate -= RotatePreview;
+        inputManager.OnRotate += RotatePreview;
 
-                materials[i] = newPreviewMaterial;
-
-            }
-
-            renderer.materials = materials;
-
-        }
     }
 
-    private void PrepareCellIndicator(Vector2Int size) {
+    private void PrepareCellIndicator(Vector2Int size, bool newPrefab) {
 
         Vector2Int newSize = size;
 
@@ -101,15 +94,41 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
                 case 0f:
 
-                cellIndicator.transform.localScale = new Vector3(size.x, 1f, size.y);
+                cellIndicator.transform.localScale = new Vector3(newSize.x, 1f, newSize.y);
+                cellIndicatorRenderer.material.mainTextureScale = newSize;
 
                 cellIndicatorChild = cellIndicator.transform.GetChild(0);
-                cellIndicatorChild.localPosition = new Vector3(0.5f, 0.01f, 0.5f);
                 cellIndicatorChild.localRotation = Quaternion.Euler(90f, 0f, 0f);
                 cellIndicatorChild.localScale = new Vector3(1f, 1f, 1f);
 
-                cellIndicator.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-                cellIndicatorRenderer.material.mainTextureScale = size;
+                if (size.x != size.y) {
+
+                    if (newPrefab) {
+
+                        cellIndicatorChild.localPosition = new Vector3(0.5f, 0.01f, 0.5f);
+
+                    }
+
+                    cellIndicator.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+
+                } else {
+
+                    cellIndicatorChild.localPosition -= new Vector3(1f, 0f, 0f);
+
+                    if (newPrefab) {
+
+                        cellIndicatorChild.localPosition = new Vector3(-0.5f, 0.01f, 0.5f);
+
+                    } else {
+
+                        cellIndicatorChild.localPosition += new Vector3(0f, 0f, 1f);
+
+                    }
+
+                    cellIndicator.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+
+                }
+
                 break;
 
                 case 90f:
@@ -123,7 +142,6 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
                 } else {
 
-                    cellIndicatorChild.localPosition -= new Vector3(1f, 0f, 0f);
                     cellIndicator.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
 
                 }
@@ -157,17 +175,41 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
                 cellIndicator.transform.localScale = new Vector3(size.x, 1f, size.y);
 
-                if (size.x == size.y) {
+                if (size.x != size.y) {
+
+                    cellIndicatorChild.localPosition += new Vector3(0f, 0f, 1f);
+                    cellIndicator.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+
+                } else {
 
                     cellIndicatorChild.localPosition += new Vector3(1f, 0f, 0f);
+                    cellIndicator.transform.rotation = Quaternion.Euler(0f, 270f, 0f);
 
                 }
 
-                cellIndicator.transform.rotation = Quaternion.Euler(0f, 270f, 0f);
                 cellIndicatorRenderer.material.mainTextureScale = size;
                 break;
 
             }
+        }
+    }
+
+    private void PreparePreview() {
+
+        Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in renderers) {
+
+            Material[] materials = renderer.materials;
+
+            for (int i = 0; i < materials.Length; i++) {
+
+                materials[i] = newPreviewMaterial;
+
+            }
+
+            renderer.materials = materials;
+
         }
     }
 
@@ -198,12 +240,8 @@ public class ObjectPreviewSystem : MonoBehaviour {
             newSize.x = size.y;
             newSize.y = size.x;
 
-            yRotation = 90f;
-
-            HidePlacementPreview();
-            ShowPlacementPreview(prefab, newSize, false);
-
-            previewObject.transform.GetChild(0).localPosition -= new Vector3(size.y, 0f, 0f);
+            UpdatePlacementPreview(prefab, newSize, 90f);
+            previewObject.transform.GetChild(0).localPosition -= new Vector3(newSize.y, 0f, 0f);
             break;
 
             case 90f:
@@ -211,31 +249,25 @@ public class ObjectPreviewSystem : MonoBehaviour {
             newSize.x = size.y;
             newSize.y = size.x;
 
-            yRotation = 180f;
-
-            HidePlacementPreview();
-            ShowPlacementPreview(prefab, newSize, false);
-
+            UpdatePlacementPreview(prefab, newSize, 180f);
             previewObject.transform.GetChild(0).localPosition -= new Vector3(newSize.x, 0f, newSize.y);
             break;
 
             case 180f:
 
-            yRotation = 270f;
+            newSize.x = size.y;
+            newSize.y = size.x;
 
-            HidePlacementPreview();
-            ShowPlacementPreview(prefab, newSize, false);
-
-            previewObject.transform.GetChild(0).localPosition -= new Vector3(0f, 0f, newSize.y);
+            UpdatePlacementPreview(prefab, newSize, 270f);
+            previewObject.transform.GetChild(0).localPosition -= new Vector3(0f, 0f, newSize.x);
             break;
 
             case 270f:
 
-            yRotation = 0f;
+            newSize.x = size.y;
+            newSize.y = size.x;
 
-            HidePlacementPreview();
-            ShowPlacementPreview(prefab, newSize, false);
-
+            UpdatePlacementPreview(prefab, newSize, 0f);
             break;
 
         }
@@ -245,30 +277,6 @@ public class ObjectPreviewSystem : MonoBehaviour {
     }
 
     public void UpdatePosition(Vector3 position, bool valid) {
-
-        if (grid.position.x + position.x < grid.position.x - Mathf.Floor(gridWidth / 2f)) {
-
-            position.x = grid.position.x - Mathf.Floor(gridWidth / 2f);
-
-        }
-
-        if (grid.position.x + position.x > grid.position.x + Mathf.Floor(gridWidth / 2f) - size.x) {
-
-            position.x = grid.position.x + Mathf.Floor(gridWidth / 2f) - size.x;
-
-        }
-
-        if (grid.position.z + position.z < grid.position.z - Mathf.Floor(gridHeight / 2f)) {
-
-            position.z = grid.position.z - Mathf.Floor(gridHeight / 2f);
-
-        }
-
-        if (grid.position.z + position.z > grid.position.z + Mathf.Floor(gridHeight / 2f) - size.y) {
-
-            position.z = grid.position.z + Mathf.Floor(gridHeight / 2f) - size.y;
-
-        }
 
         position.y = 0f;
 
@@ -304,7 +312,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
         yRotation = 0f;
         cellIndicator.SetActive(true);
-        PrepareCellIndicator(Vector2Int.one);
+        PrepareCellIndicator(Vector2Int.one, true);
         ApplyFeedbackToCellIndicator(false);
 
     }

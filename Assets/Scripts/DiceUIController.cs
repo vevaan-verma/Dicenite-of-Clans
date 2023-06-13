@@ -15,6 +15,7 @@ public class DiceUIController : MonoBehaviour {
 
     [Header("UI References")]
     [SerializeField] private CanvasGroup diceHUD;
+    [SerializeField] private Image loadingScreen;
     [SerializeField] private Slider healthSlider;
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text woodText;
@@ -35,18 +36,26 @@ public class DiceUIController : MonoBehaviour {
     private Coroutine brickLerpCoroutine;
     private Coroutine metalLerpCoroutine;
 
-    [Header("Kingdom Scene")]
+    [Header("Scene Transitions")]
     [SerializeField] private string kingdomSceneName;
-    [SerializeField] private float kingdomFadeOpacity;
-    [SerializeField] private float kingdomFadeDuration;
-    [SerializeField] private Image kingdomLoadingPanel;
-    private Coroutine kingdomFadeCoroutine;
+    [SerializeField] private float loadingFadeOpacity;
+    [SerializeField] private float loadingFadeDuration;
+    private Coroutine loadingFadeCoroutine;
 
     private void Start() {
 
         gameManager = FindObjectOfType<GameManager>();
         playerData = FindObjectOfType<PlayerData>();
         diceRollers = FindObjectsOfType<DiceRoller>();
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
+        StartFadeOutLoadingScreen(new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f));
 
         healthSlider.maxValue = playerData.GetMaxHealth();
         UpdateHealthSlider(playerData.GetMaxHealth());
@@ -59,7 +68,7 @@ public class DiceUIController : MonoBehaviour {
 
         kingdomButton.onClick.AddListener(LoadKingdomScene);
 
-        kingdomLoadingPanel.color = new Color(kingdomLoadingPanel.color.r, kingdomLoadingPanel.color.g, kingdomLoadingPanel.color.b, 0f);
+        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
 
     }
 
@@ -119,36 +128,55 @@ public class DiceUIController : MonoBehaviour {
 
         StartFadeOutDiceHUD(0f);
 
-        if (kingdomFadeCoroutine != null) {
+        if (loadingFadeCoroutine != null) {
 
-            StopCoroutine(kingdomFadeCoroutine);
+            StopCoroutine(loadingFadeCoroutine);
 
         }
 
-        kingdomLoadingPanel.color = new Color(kingdomLoadingPanel.color.r, kingdomLoadingPanel.color.g, kingdomLoadingPanel.color.b, 0f);
+        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
 
-        kingdomFadeCoroutine = StartCoroutine(FadeLoadingScreen(kingdomLoadingPanel.color, new Color(kingdomLoadingPanel.color.r, kingdomLoadingPanel.color.g, kingdomLoadingPanel.color.b, kingdomFadeOpacity)));
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, loadingFadeOpacity), true, kingdomSceneName));
 
     }
 
-    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor) {
+    private void StartFadeOutLoadingScreen(Color targetColor) {
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, targetColor, false, ""));
+
+    }
+
+    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor, bool loadScene, string sceneName) {
 
         float currentTime = 0f;
-        kingdomLoadingPanel.gameObject.SetActive(true);
+        loadingScreen.gameObject.SetActive(true);
 
-        while (currentTime < kingdomFadeDuration) {
+        while (currentTime < loadingFadeDuration) {
 
             currentTime += Time.deltaTime;
-            kingdomLoadingPanel.color = Color.Lerp(startColor, targetColor, currentTime / kingdomFadeDuration);
+            loadingScreen.color = Color.Lerp(startColor, targetColor, currentTime / loadingFadeDuration);
             yield return null;
 
         }
 
-        kingdomLoadingPanel.color = targetColor;
-        kingdomFadeCoroutine = null;
+        loadingScreen.color = targetColor;
+        loadingFadeCoroutine = null;
 
-        SceneManager.LoadSceneAsync(kingdomSceneName);
+        if (loadScene) {
 
+            SceneManager.LoadSceneAsync(sceneName);
+
+        } else {
+
+            loadingScreen.gameObject.SetActive(false);
+
+        }
     }
 
     public void UpdateHealthSlider(int health) {
