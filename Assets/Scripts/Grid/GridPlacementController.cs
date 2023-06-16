@@ -5,6 +5,8 @@ public class GridPlacementController : MonoBehaviour {
     [Header("References")]
     [SerializeField] private ObjectManager objectManager;
     private GameManager gameManager;
+    private KingdomUIController kingdomUIController;
+    private AudioManager audioManager;
     private IBuildingState buildingState;
     private InputManager inputManager;
 
@@ -20,12 +22,10 @@ public class GridPlacementController : MonoBehaviour {
     [SerializeField] private PlaceableObjectDatabase objectDatabase;
     private Vector3Int lastPosition;
 
-    [Header("Audio")]
-    private AudioManager audioManager;
-
     private void Start() {
 
         gameManager = FindObjectOfType<GameManager>();
+        kingdomUIController = FindObjectOfType<KingdomUIController>();
         inputManager = FindObjectOfType<InputManager>();
         audioManager = FindObjectOfType<AudioManager>();
 
@@ -66,6 +66,17 @@ public class GridPlacementController : MonoBehaviour {
 
     }
 
+    public void StartForcedPlacement(int ID) {
+
+        StopPlacement();
+        gridOverlay.gameObject.SetActive(true);
+        buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, ID, audioManager);
+        inputManager.OnClick += PlaceObject;
+        inputManager.OnExit += StopPlacement;
+        kingdomUIController.StartFadeOutKingdomHUD(0f);
+
+    }
+
     private void PlaceObject() {
 
         if (inputManager.IsPointerOverUI()) {
@@ -74,7 +85,9 @@ public class GridPlacementController : MonoBehaviour {
 
         }
 
+        kingdomUIController.StartFadeInKingdomHud();
         buildingState.OnAction(grid.WorldToCell(objectManager.previewSystem.previewObject.position));
+        StopPlacement();
 
     }
 

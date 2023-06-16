@@ -28,6 +28,13 @@ public class ObjectData {
     }
 
     [field: SerializeField]
+    public Sprite icon {
+
+        get; private set;
+
+    }
+
+    [field: SerializeField]
     public Vector2Int size {
 
         get; private set;
@@ -43,6 +50,20 @@ public class ObjectData {
 
     [field: SerializeField]
     public bool stackable {
+
+        get; private set;
+
+    }
+
+    [field: SerializeField]
+    public int price {
+
+        get; private set;
+
+    }
+
+    [field: SerializeField]
+    public GameManager.MaterialType materialType {
 
         get; private set;
 

@@ -1,9 +1,7 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerData : MonoBehaviour {
-
-    [Header("References")]
-    private DiceUIController UIController;
 
     [Header("Data")]
     [SerializeField] private int maxHealth;
@@ -12,10 +10,11 @@ public class PlayerData : MonoBehaviour {
     private int brick;
     private int metal;
 
-    private void Start() {
+    private void Awake() {
 
-        UIController = FindObjectOfType<DiceUIController>();
-        health = 100;
+        DontDestroyOnLoad(gameObject);
+
+        health = maxHealth;
 
     }
 
@@ -34,18 +33,16 @@ public class PlayerData : MonoBehaviour {
     public void AddHealth(int health) {
 
         this.health += health;
-        UIController.UpdateHealthSlider(this.health);
 
     }
 
     public void RemoveHealth(int health) {
 
         this.health -= health;
-        UIController.UpdateHealthSlider(this.health);
 
     }
 
-    public int GetWood() {
+    public int GetWoodCount() {
 
         return wood;
 
@@ -54,11 +51,16 @@ public class PlayerData : MonoBehaviour {
     public void AddWood(int wood) {
 
         this.wood += wood;
-        UIController.UpdateWoodCount(this.wood);
 
     }
 
-    public int GetBrick() {
+    public void RemoveWood(int wood) {
+
+        this.wood -= wood;
+
+    }
+
+    public int GetBrickCount() {
 
         return brick;
 
@@ -67,11 +69,16 @@ public class PlayerData : MonoBehaviour {
     public void AddBrick(int brick) {
 
         this.brick += brick;
-        UIController.UpdateBrickCount(this.brick);
 
     }
 
-    public int GetMetal() {
+    public void RemoveBrick(int brick) {
+
+        this.brick -= brick;
+
+    }
+
+    public int GetMetalCount() {
 
         return metal;
 
@@ -80,7 +87,12 @@ public class PlayerData : MonoBehaviour {
     public void AddMetal(int metal) {
 
         this.metal += metal;
-        UIController.UpdateMetalCount(this.metal);
+
+    }
+
+    public void RemoveMetal(int metal) {
+
+        this.metal -= metal;
 
     }
 }

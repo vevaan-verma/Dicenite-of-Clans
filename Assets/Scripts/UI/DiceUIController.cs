@@ -28,9 +28,9 @@ public class DiceUIController : MonoBehaviour {
     [Header("Animations")]
     [SerializeField] private float healthLerpDuration;
     [SerializeField] private float materialLerpDuration;
-    [SerializeField] private float fadeDuration;
-    [SerializeField][Range(0f, 1f)] private float fadeOpacity;
-    private Coroutine fadeDiceHUDCoroutine;
+    [SerializeField] private float diceHUDFadeDuration;
+    [SerializeField][Range(0f, 1f)] private float diceHUDFadeOpacity;
+    private Coroutine diceHUDFadeCoroutine;
     private Coroutine healthLerpCoroutine;
     private Coroutine woodLerpCoroutine;
     private Coroutine brickLerpCoroutine;
@@ -38,8 +38,8 @@ public class DiceUIController : MonoBehaviour {
 
     [Header("Scene Transitions")]
     [SerializeField] private string kingdomSceneName;
-    [SerializeField] private float loadingFadeOpacity;
     [SerializeField] private float loadingFadeDuration;
+    [SerializeField] private float loadingFadeOpacity;
     private Coroutine loadingFadeCoroutine;
 
     private void Start() {
@@ -58,7 +58,7 @@ public class DiceUIController : MonoBehaviour {
         StartFadeOutLoadingScreen(new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f));
 
         healthSlider.maxValue = playerData.GetMaxHealth();
-        UpdateHealthSlider(playerData.GetMaxHealth());
+        UpdateHealthSlider();
 
         buildButton.GetComponentInChildren<TMP_Text>().text = "Build x" + gameManager.GetBuildersDice();
         buildButton.onClick.AddListener(RollBuildersDice);
@@ -68,7 +68,10 @@ public class DiceUIController : MonoBehaviour {
 
         kingdomButton.onClick.AddListener(LoadKingdomScene);
 
-        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
+        UpdateHealthSlider();
+        UpdateWoodCount();
+        UpdateBrickCount();
+        UpdateMetalCount();
 
     }
 
@@ -85,7 +88,7 @@ public class DiceUIController : MonoBehaviour {
         }
 
         gameManager.ClearAllDice();
-        StartFadeOutDiceHUD(fadeOpacity);
+        StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
         int randInt;
 
@@ -111,7 +114,7 @@ public class DiceUIController : MonoBehaviour {
         }
 
         gameManager.ClearAllDice();
-        StartFadeOutDiceHUD(fadeOpacity);
+        StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
         int randInt;
 
@@ -140,7 +143,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    private void StartFadeOutLoadingScreen(Color targetColor) {
+    protected void StartFadeOutLoadingScreen(Color targetColor) {
 
         if (loadingFadeCoroutine != null) {
 
@@ -152,7 +155,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor, bool loadScene, string sceneName) {
+    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor, bool fadeIn, string sceneName) {
 
         float currentTime = 0f;
         loadingScreen.gameObject.SetActive(true);
@@ -168,7 +171,7 @@ public class DiceUIController : MonoBehaviour {
         loadingScreen.color = targetColor;
         loadingFadeCoroutine = null;
 
-        if (loadScene) {
+        if (fadeIn) {
 
             SceneManager.LoadSceneAsync(sceneName);
 
@@ -179,7 +182,7 @@ public class DiceUIController : MonoBehaviour {
         }
     }
 
-    public void UpdateHealthSlider(int health) {
+    public void UpdateHealthSlider() {
 
         if (healthLerpCoroutine != null) {
 
@@ -187,7 +190,7 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        healthLerpCoroutine = StartCoroutine(LerpHealthSlider((int) healthSlider.value, health));
+        healthLerpCoroutine = StartCoroutine(LerpHealthSlider((int) healthSlider.value, playerData.GetHealth()));
 
     }
 
@@ -210,7 +213,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    public void UpdateWoodCount(int wood) {
+    public void UpdateWoodCount() {
 
         if (woodLerpCoroutine != null) {
 
@@ -219,7 +222,7 @@ public class DiceUIController : MonoBehaviour {
         }
 
         int.TryParse(woodText.text, out int woodCount);
-        woodLerpCoroutine = StartCoroutine(LerpWoodCount(woodCount, wood));
+        woodLerpCoroutine = StartCoroutine(LerpWoodCount(woodCount, playerData.GetWoodCount()));
 
     }
 
@@ -240,7 +243,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    public void UpdateBrickCount(int brick) {
+    public void UpdateBrickCount() {
 
         if (brickLerpCoroutine != null) {
 
@@ -249,7 +252,7 @@ public class DiceUIController : MonoBehaviour {
         }
 
         int.TryParse(brickText.text, out int brickCount);
-        brickLerpCoroutine = StartCoroutine(LerpBrickCount(brickCount, brick));
+        brickLerpCoroutine = StartCoroutine(LerpBrickCount(brickCount, playerData.GetBrickCount()));
 
     }
 
@@ -270,7 +273,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    public void UpdateMetalCount(int metal) {
+    public void UpdateMetalCount() {
 
         if (metalLerpCoroutine != null) {
 
@@ -279,7 +282,7 @@ public class DiceUIController : MonoBehaviour {
         }
 
         int.TryParse(metalText.text, out int metalCount);
-        metalLerpCoroutine = StartCoroutine(LerpMetalCount(metalCount, metal));
+        metalLerpCoroutine = StartCoroutine(LerpMetalCount(metalCount, playerData.GetMetalCount()));
 
     }
 
@@ -316,42 +319,48 @@ public class DiceUIController : MonoBehaviour {
 
     public void StartFadeInDiceHud() {
 
-        if (fadeDiceHUDCoroutine != null) {
+        if (diceHUDFadeCoroutine != null) {
 
-            StopCoroutine(fadeDiceHUDCoroutine);
+            StopCoroutine(diceHUDFadeCoroutine);
 
         }
 
-        fadeDiceHUDCoroutine = StartCoroutine(FadeDiceHUD(diceHUD.alpha, 1f));
+        diceHUDFadeCoroutine = StartCoroutine(FadeDiceHUD(diceHUD.alpha, 1f, true));
 
     }
 
     public void StartFadeOutDiceHUD(float targetOpacity) {
 
-        if (fadeDiceHUDCoroutine != null) {
+        if (diceHUDFadeCoroutine != null) {
 
-            StopCoroutine(fadeDiceHUDCoroutine);
+            StopCoroutine(diceHUDFadeCoroutine);
 
         }
 
-        fadeDiceHUDCoroutine = StartCoroutine(FadeDiceHUD(diceHUD.alpha, targetOpacity));
+        kingdomButton.GetComponent<SlideUIButton>().DisableSlideIn();
+        diceHUDFadeCoroutine = StartCoroutine(FadeDiceHUD(diceHUD.alpha, targetOpacity, false));
 
     }
 
-    private IEnumerator FadeDiceHUD(float startOpacity, float targetOpacity) {
+    private IEnumerator FadeDiceHUD(float startOpacity, float targetOpacity, bool fadeIn) {
 
         float currentTime = 0f;
 
-        while (currentTime < fadeDuration) {
+        while (currentTime < diceHUDFadeDuration) {
 
             currentTime += Time.deltaTime;
-            diceHUD.alpha = Mathf.Lerp(startOpacity, targetOpacity, currentTime / fadeDuration);
+            diceHUD.alpha = Mathf.Lerp(startOpacity, targetOpacity, currentTime / diceHUDFadeDuration);
             yield return null;
 
         }
 
         diceHUD.alpha = targetOpacity;
-        fadeDiceHUDCoroutine = null;
+        diceHUDFadeCoroutine = null;
 
+        if (fadeIn) {
+
+            kingdomButton.GetComponent<SlideUIButton>().EnableSlideIn();
+
+        }
     }
 }

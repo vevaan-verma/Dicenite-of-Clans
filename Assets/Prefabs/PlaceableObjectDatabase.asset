@@ -10,18 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5d4f2374f2a8914e8bf4ab141a49f5a, type: 3}
-  m_Name: Database
+  m_Name: PlaceableObjectDatabase
   m_EditorClassIdentifier: 
   objectData:
-  - <name>k__BackingField: Wood Barrier
+  - <name>k__BackingField: Wooden Barrier
     <ID>k__BackingField: 0
+    <icon>k__BackingField: {fileID: 21300000, guid: 8234a122b1ef06340b9686d9698168a3,
+      type: 3}
     <size>k__BackingField: {x: 1, y: 1}
     <prefab>k__BackingField: {fileID: 8657704073218189654, guid: 653ee879590bcd74d8a3fdcf495c65d2,
       type: 3}
     <stackable>k__BackingField: 0
+    <price>k__BackingField: 10
+    <materialType>k__BackingField: 0
   - <name>k__BackingField: Brick Barrier
     <ID>k__BackingField: 1
+    <icon>k__BackingField: {fileID: 21300000, guid: e9b7cefa5a5c5d44e966eb810da4e66d,
+      type: 3}
     <size>k__BackingField: {x: 2, y: 1}
     <prefab>k__BackingField: {fileID: 7978467563069662186, guid: 07bb4ad75a4658244a2d5b1ad5850d60,
       type: 3}
     <stackable>k__BackingField: 0
+    <price>k__BackingField: 15
+    <materialType>k__BackingField: 1

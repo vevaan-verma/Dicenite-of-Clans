@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -9,9 +10,15 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private int gridWidth;
     [SerializeField] private int gridHeight;
 
+    public enum MaterialType {
+
+        Wood, Brick, Metal
+
+    }
+
     private void Start() {
 
-        //DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(gameObject);
 
     }
 

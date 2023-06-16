@@ -12,6 +12,8 @@ public class SlideUIButton : MonoBehaviour {
     [SerializeField] private float slideDuration;
     [SerializeField] private Transform slideTarget;
     private Vector2 slideInitialPosition;
+    bool slideEnabled;
+    bool slidOut;
 
     [Header("Animations")]
     private Coroutine slideCoroutine;
@@ -33,7 +35,26 @@ public class SlideUIButton : MonoBehaviour {
         trigger.triggers.Add(entry2);
 
         slideInitialPosition = transform.position;
-        button.interactable = false;
+
+        slideEnabled = true;
+
+    }
+
+    public void StartSlideOut() {
+
+        if (!slideEnabled) {
+
+            return;
+
+        }
+
+        if (slideCoroutine != null) {
+
+            StopCoroutine(slideCoroutine);
+
+        }
+
+        slideCoroutine = StartCoroutine(SlideButton(transform.position, slideTarget.position, true));
 
     }
 
@@ -45,25 +66,29 @@ public class SlideUIButton : MonoBehaviour {
 
         }
 
-        slideCoroutine = StartCoroutine(SlideButton(transform.position, slideInitialPosition));
-        button.interactable = false;
+        slideCoroutine = StartCoroutine(SlideButton(transform.position, slideInitialPosition, false));
 
     }
 
-    public void StartSlideOut() {
+    public void EnableSlideIn() {
 
-        if (slideCoroutine != null) {
+        slideEnabled = true;
 
-            StopCoroutine(slideCoroutine);
+    }
+
+    public void DisableSlideIn() {
+
+        if (slidOut) {
+
+            StartSlideIn();
 
         }
 
-        slideCoroutine = StartCoroutine(SlideButton(transform.position, slideTarget.position));
-        button.interactable = true;
+        slideEnabled = false;
 
     }
 
-    private IEnumerator SlideButton(Vector2 startPosition, Vector2 targetPosition) {
+    private IEnumerator SlideButton(Vector2 startPosition, Vector2 targetPosition, bool slideOut) {
 
         float currentTime = 0f;
 
@@ -77,6 +102,7 @@ public class SlideUIButton : MonoBehaviour {
 
         transform.position = targetPosition;
         slideCoroutine = null;
+        slidOut = slideOut;
 
     }
 }

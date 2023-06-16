@@ -13,10 +13,11 @@ public class AudioManager : MonoBehaviour {
     [SerializeField] private AudioClip rotateSound;
     [SerializeField] private AudioClip removeSound;
     [SerializeField] private AudioClip errorSound;
+    [SerializeField] private AudioClip buySound;
 
     public enum SoundType {
 
-        Click, Place, Rotate, Remove, Error
+        Click, Place, Rotate, Remove, Error, Buy
 
     }
 
@@ -47,6 +48,11 @@ public class AudioManager : MonoBehaviour {
             case SoundType.Error:
 
             audioSource.PlayOneShot(errorSound);
+            break;
+
+            case SoundType.Buy:
+
+            audioSource.PlayOneShot(buySound);
             break;
 
             default:

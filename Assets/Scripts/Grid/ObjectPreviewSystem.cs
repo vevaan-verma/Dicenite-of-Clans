@@ -5,6 +5,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private GameObject cellIndicator;
+    private AudioManager audioManager;
     private Transform cellIndicatorChild;
     private InputManager inputManager;
     private Renderer cellIndicatorRenderer;
@@ -26,9 +27,6 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     [Header("Object Rotation")]
     private float yRotation;
-
-    [Header("Audio")]
-    private AudioManager audioManager;
 
     private void Start() {
 
