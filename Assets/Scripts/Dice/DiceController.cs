@@ -52,7 +52,7 @@ public class DiceController : MonoBehaviour {
 
     public void ShowDicePopup() {
 
-        Instantiate(dicePopup, new Vector3(center.position.x, center.position.y + diceRadius, center.position.z), Quaternion.Euler(90f, 0f, 0f), transform).GetComponent<TextMeshPro>().text = rollNumber + "";
+        Instantiate(dicePopup, new Vector3(center.position.x, center.position.y + diceRadius, center.position.z), Quaternion.Euler(90f, 0f, 0f), transform).GetComponent<TextMeshPro>().text = rollNumber + "cheese";
 
     }
 }
