@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private int attackDice;
     [SerializeField] private int gridWidth;
     [SerializeField] private int gridHeight;
+    [SerializeField] private string diceRollFilePath;
 
     public enum MaterialType {
 
@@ -58,6 +59,12 @@ public class GameManager : MonoBehaviour {
     public int GetGridHeight() {
 
         return gridHeight;
+
+    }
+
+    public string GetDiceRollFilePath() {
+
+        return diceRollFilePath;
 
     }
 }

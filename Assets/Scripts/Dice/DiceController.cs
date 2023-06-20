@@ -34,7 +34,7 @@ public class DiceController : MonoBehaviour {
 
         if (diceVelocity.x == 0f && diceVelocity.y == 0f && diceVelocity.z == 0f && !diceUsed) {
 
-            diceStillTimer += Time.deltaTime;
+            diceStillTimer += Time.fixedDeltaTime;
 
             if (diceStillTimer >= gameManager.GetDiceStillTime()) {
 

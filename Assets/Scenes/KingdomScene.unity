@@ -251,7 +251,6 @@ GameObject:
   - component: {fileID: 69609191}
   - component: {fileID: 69609193}
   - component: {fileID: 69609192}
-  - component: {fileID: 69609194}
   m_Layer: 5
   m_Name: StoreHUD
   m_TagString: Untagged
@@ -321,18 +320,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 69609190}
   m_CullTransparentMesh: 1
---- !u!225 &69609194
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 69609190}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &215670631
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,7 +517,7 @@ MonoBehaviour:
   kingdomHUD: {fileID: 1386529642}
   loadingScreen: {fileID: 589143762}
   storeButton: {fileID: 617580792}
-  storeHUD: {fileID: 69609194}
+  storeHUD: {fileID: 358093716}
   woodText: {fileID: 1613720912}
   brickText: {fileID: 1126557579}
   metalText: {fileID: 1643558948}
@@ -815,8 +802,9 @@ GameObject:
   - component: {fileID: 358093714}
   - component: {fileID: 358093713}
   - component: {fileID: 358093715}
+  - component: {fileID: 358093716}
   m_Layer: 5
-  m_Name: StoreHUDMask
+  m_Name: StoreHUDParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -894,6 +882,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
+--- !u!225 &358093716
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 358093710}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &363043553
 GameObject:
   m_ObjectHideFlags: 0
@@ -1966,6 +1966,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  wood: 12
+  brick: 18
+  metal: 0
 --- !u!4 &1002521589
 Transform:
   m_ObjectHideFlags: 0
@@ -1979,7 +1982,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1029759838
 GameObject:
@@ -2274,12 +2277,61 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1098426868}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.8545354, y: -4.9963865, z: 2.6463976}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1125933678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1125933680}
+  - component: {fileID: 1125933679}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1125933679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125933678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4e0dfb7ca17b3849807929d7cb152d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  diceStillTime: 0.1
+  buildersDice: 2
+  attackDice: 3
+  gridWidth: 8
+  gridHeight: 8
+--- !u!4 &1125933680
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125933678}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1126557576
 GameObject:

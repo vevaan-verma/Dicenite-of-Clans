@@ -9,7 +9,6 @@ public class KingdomUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private PlaceableObjectDatabase placeableObjectDatabase;
-    private GameManager gameManager;
     private PlayerData playerData;
 
     [Header("UI References")]
@@ -44,7 +43,6 @@ public class KingdomUIController : MonoBehaviour {
 
     private void Start() {
 
-        gameManager = FindObjectOfType<GameManager>();
         playerData = FindObjectOfType<PlayerData>();
 
         if (loadingFadeCoroutine != null) {

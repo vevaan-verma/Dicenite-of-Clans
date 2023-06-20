@@ -17,123 +17,174 @@ public class DiceSide : MonoBehaviour {
 
     private void OnTriggerStay(Collider collider) {
 
-        if (diceController.diceStill && collider.CompareTag("DiceGround")) {
+        if (!diceUIController.GetTestingModeState()) {
 
-            diceController.UIController.StartFadeInDiceHud();
-            diceController.rollNumber = 7 - (transform.name[transform.name.Length - 1] - '0');
+            if (diceController.diceStill && collider.CompareTag("DiceGround")) {
 
-            if (transform.parent.CompareTag("BuildersDice")) {
+                diceController.UIController.StartFadeInDiceHud();
+                diceController.rollNumber = 7 - (transform.name[transform.name.Length - 1] - '0');
 
-                switch (diceController.rollNumber) {
+                if (transform.parent.CompareTag("BuildersDice")) {
 
-                    case 1:
+                    switch (diceController.rollNumber) {
 
-                    case 2:
+                        case 1:
 
-                    case 3:
+                        case 2:
 
-                    playerData.AddWood(diceController.rollNumber);
-                    diceUIController.UpdateWoodCount();
-                    break;
+                        case 3:
 
-                    case 4:
+                        playerData.AddWood(diceController.rollNumber);
+                        diceUIController.UpdateWoodCount();
+                        break;
 
-                    case 5:
+                        case 4:
 
-                    playerData.AddBrick(diceController.rollNumber);
-                    diceUIController.UpdateBrickCount();
-                    break;
+                        case 5:
 
-                    case 6:
+                        playerData.AddBrick(diceController.rollNumber);
+                        diceUIController.UpdateBrickCount();
+                        break;
 
-                    playerData.AddMetal(diceController.rollNumber);
-                    diceUIController.UpdateMetalCount();
-                    break;
+                        case 6:
 
+                        playerData.AddMetal(diceController.rollNumber);
+                        diceUIController.UpdateMetalCount();
+                        break;
+
+                    }
+                } else {
+
+                    switch (diceController.rollNumber) {
+
+                        case 1:
+
+                        playerData.RemoveHealth(1);
+                        diceUIController.UpdateHealthSlider();
+                        break;
+
+                        case 2:
+
+                        playerData.RemoveHealth(2);
+                        diceUIController.UpdateHealthSlider();
+                        break;
+
+                        case 3:
+
+                        playerData.RemoveHealth(3);
+                        diceUIController.UpdateHealthSlider();
+                        break;
+
+                        case 4:
+
+                        playerData.RemoveHealth(4);
+                        diceUIController.UpdateHealthSlider();
+                        break;
+
+                        case 5:
+
+                        playerData.RemoveHealth(5);
+                        diceUIController.UpdateHealthSlider();
+                        break;
+
+                        case 6:
+
+                        playerData.RemoveHealth(6);
+                        diceUIController.UpdateHealthSlider();
+                        break;
+
+                    }
                 }
-            } else {
 
-                switch (diceController.rollNumber) {
+                diceController.diceUsed = true;
 
-                    case 1:
+                Transform parent = transform.parent;
+                Transform child;
+                DiceSide diceSide;
 
-                    playerData.RemoveHealth(1);
-                    diceUIController.UpdateHealthSlider();
-                    break;
+                for (int i = 0; i < parent.childCount; i++) {
 
-                    case 2:
+                    child = parent.GetChild(i);
+                    diceSide = child.GetComponent<DiceSide>();
 
-                    playerData.RemoveHealth(2);
-                    diceUIController.UpdateHealthSlider();
-                    break;
+                    if (diceSide != null) {
 
-                    case 3:
+                        Destroy(child.GetComponent<SphereCollider>());
+                        Destroy(diceSide);
 
-                    playerData.RemoveHealth(3);
-                    diceUIController.UpdateHealthSlider();
-                    break;
-
-                    case 4:
-
-                    playerData.RemoveHealth(4);
-                    diceUIController.UpdateHealthSlider();
-                    break;
-
-                    case 5:
-
-                    playerData.RemoveHealth(5);
-                    diceUIController.UpdateHealthSlider();
-                    break;
-
-                    case 6:
-
-                    playerData.RemoveHealth(6);
-                    diceUIController.UpdateHealthSlider();
-                    break;
-
+                    }
                 }
-            }
 
-            diceController.diceUsed = true;
-
-            Transform parent = transform.parent;
-            Transform child;
-            DiceSide diceSide;
-
-            for (int i = 0; i < parent.childCount; i++) {
-
-                child = parent.GetChild(i);
-                diceSide = child.GetComponent<DiceSide>();
-
-                if (diceSide != null) {
-
-                    Destroy(child.GetComponent<SphereCollider>());
-                    Destroy(diceSide);
-
-                }
-            }
-
-            bool found = false;
-
-            foreach (DiceController dice in FindObjectsOfType<DiceController>()) {
-
-                if (!dice.diceUsed) {
-
-                    found = true;
-                    break;
-
-                }
-            }
-
-            if (!found) {
+                bool found = false;
 
                 foreach (DiceController dice in FindObjectsOfType<DiceController>()) {
 
-                    dice.ShowDicePopup();
+                    if (!dice.diceUsed) {
 
+                        found = true;
+                        break;
+
+                    }
                 }
 
-                diceController.UIController.EnableRollButtons();
+                if (!found) {
+
+                    foreach (DiceController dice in FindObjectsOfType<DiceController>()) {
+
+                        dice.ShowDicePopup();
+
+                    }
+
+                    diceController.UIController.EnableRollButtons();
+
+                }
+            }
+        } else {
+
+            if (diceController.diceStill && collider.CompareTag("DiceGround")) {
+
+                diceController.rollNumber = 7 - (transform.name[transform.name.Length - 1] - '0');
+                diceController.diceUsed = true;
+
+                Transform parent = transform.parent;
+                Transform child;
+                DiceSide diceSide;
+
+                for (int i = 0; i < parent.childCount; i++) {
+
+                    child = parent.GetChild(i);
+                    diceSide = child.GetComponent<DiceSide>();
+
+                    if (diceSide != null) {
+
+                        Destroy(child.GetComponent<SphereCollider>());
+                        Destroy(diceSide);
+
+                    }
+                }
+
+                bool found = false;
+
+                foreach (DiceController dice in FindObjectsOfType<DiceController>()) {
+
+                    if (!dice.diceUsed) {
+
+                        found = true;
+                        break;
+
+                    }
+                }
+
+                if (!found) {
+
+                    foreach (DiceController dice in FindObjectsOfType<DiceController>()) {
+
+                        dice.ShowDicePopup();
+
+                    }
+                }
+
+                diceUIController.FinishTestingRolls();
 
             }
         }

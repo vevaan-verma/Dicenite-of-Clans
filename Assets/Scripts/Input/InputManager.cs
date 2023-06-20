@@ -4,21 +4,12 @@ using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour {
 
-    [Header("References")]
-    private GameManager gameManager;
-
     [Header("Placement Detection")]
     [SerializeField] private Camera placementCamera;
     [SerializeField] private LayerMask gridMask;
     private Vector3 lastPosition;
 
     public event Action OnClick, OnRotate, OnExit;
-
-    private void Start() {
-
-        gameManager = FindObjectOfType<GameManager>();
-
-    }
 
     private void Update() {
 

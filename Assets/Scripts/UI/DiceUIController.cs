@@ -4,13 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
+using System.IO;
+using Newtonsoft.Json;
+using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine.Rendering.Universal;
 
 public class DiceUIController : MonoBehaviour {
 
     [Header("References")]
+    [SerializeField] private List<DiceRoller> diceRollers;
     private GameManager gameManager;
     private PlayerData playerData;
-    private DiceRoller[] diceRollers;
     private List<DiceRoller> rollersLeft;
 
     [Header("UI References")]
@@ -24,6 +30,10 @@ public class DiceUIController : MonoBehaviour {
     [SerializeField] private Button buildButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button kingdomButton;
+    [SerializeField] private CanvasGroup testingHUD;
+    [SerializeField] private GameObject rollButton;
+    [SerializeField] private GameObject acceptButton;
+    [SerializeField] private GameObject declineButton;
 
     [Header("Animations")]
     [SerializeField] private float healthLerpDuration;
@@ -42,11 +52,18 @@ public class DiceUIController : MonoBehaviour {
     [SerializeField] private float loadingFadeOpacity;
     private Coroutine loadingFadeCoroutine;
 
+    [Header("Testing Mode")]
+    private RollRootObject importedRollData;
+    private RollRootObject newRollData;
+    private List<RollData> currDiceRollData;
+    private bool testingModeEnabled;
+
+    public event Action OnTestingModeToggle;
+
     private void Start() {
 
         gameManager = FindObjectOfType<GameManager>();
         playerData = FindObjectOfType<PlayerData>();
-        diceRollers = FindObjectsOfType<DiceRoller>();
 
         if (loadingFadeCoroutine != null) {
 
@@ -73,30 +90,76 @@ public class DiceUIController : MonoBehaviour {
         UpdateBrickCount();
         UpdateMetalCount();
 
+        OnTestingModeToggle += ToggleTestingMode;
+
+        testingHUD.gameObject.SetActive(false);
+
+        rollButton.GetComponent<Button>().onClick.AddListener(RollTestingBuildersDice);
+        acceptButton.GetComponent<Button>().onClick.AddListener(AcceptTestingRoll);
+        declineButton.GetComponent<Button>().onClick.AddListener(DeclineTestingRoll);
+
+        if (!File.Exists(gameManager.GetDiceRollFilePath())) {
+
+            File.Create(gameManager.GetDiceRollFilePath());
+
+        }
+
+        importedRollData = new RollRootObject();
+
+        using (StreamReader sr = new StreamReader(gameManager.GetDiceRollFilePath())) {
+
+            if (sr.EndOfStream) {
+
+                Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+
+            } else {
+
+                importedRollData = JsonConvert.DeserializeObject<RollRootObject>(sr.ReadToEnd());
+
+            }
+        }
+
+        newRollData = new RollRootObject();
+
+    }
+
+    private void Update() {
+
+        if ((Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) || (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) || (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T))) {
+
+            OnTestingModeToggle?.Invoke();
+
+        }
+    }
+
+    private void OnApplicationQuit() {
+
+        if (testingModeEnabled) {
+
+            SaveRollData();
+
+        }
     }
 
     private void RollBuildersDice() {
 
-        DisableRollButtons();
+        if (importedRollData.rollData.Count == 0) {
 
-        rollersLeft = new List<DiceRoller>();
-
-        foreach (DiceRoller roller in diceRollers) {
-
-            rollersLeft.Add(roller);
+            Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+            return;
 
         }
+
+        DisableRollButtons();
 
         gameManager.ClearAllDice();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        int randInt;
+        int rollIndex = UnityEngine.Random.Range(0, importedRollData.rollData.Count);
 
         for (int i = 0; i < gameManager.GetBuildersDice(); i++) {
 
-            randInt = Random.Range(0, rollersLeft.Count - 1);
-            rollersLeft[randInt].RollBuildersDice();
-            rollersLeft.RemoveAt(randInt);
+            diceRollers[importedRollData.rollData[rollIndex][i].GetDiceRoller()].RollBuildersDice(importedRollData.rollData[rollIndex][i].GetDiceRotation(), importedRollData.rollData[rollIndex][i].GetDiceVelocity());
 
         }
     }
@@ -120,7 +183,7 @@ public class DiceUIController : MonoBehaviour {
 
         for (int i = 0; i < gameManager.GetAttackDice(); i++) {
 
-            randInt = Random.Range(0, rollersLeft.Count - 1);
+            randInt = UnityEngine.Random.Range(0, rollersLeft.Count);
             rollersLeft[randInt].RollAttackDice();
             rollersLeft.RemoveAt(randInt);
 
@@ -361,6 +424,112 @@ public class DiceUIController : MonoBehaviour {
 
             kingdomButton.GetComponent<SlideUIButton>().EnableSlideIn();
 
+        }
+    }
+
+    public bool GetTestingModeState() {
+
+        return testingModeEnabled;
+
+    }
+
+    private void ToggleTestingMode() {
+
+        gameManager.ClearAllDice();
+        testingModeEnabled = !testingModeEnabled;
+
+        if (testingModeEnabled) {
+
+            Debug.LogWarning("Developer testing mode enabled!");
+            diceHUD.gameObject.SetActive(false);
+            testingHUD.gameObject.SetActive(true);
+            rollButton.SetActive(true);
+            acceptButton.SetActive(false);
+            declineButton.SetActive(false);
+
+        } else {
+
+            SaveRollData();
+            Debug.LogWarning("Developer testing mode disabled!");
+            testingHUD.gameObject.SetActive(false);
+            diceHUD.gameObject.SetActive(true);
+            EnableRollButtons();
+            StartFadeInDiceHud();
+
+        }
+    }
+
+    private void RollTestingBuildersDice() {
+
+        rollersLeft = new List<DiceRoller>();
+
+        foreach (DiceRoller roller in diceRollers) {
+
+            rollersLeft.Add(roller);
+
+        }
+
+        gameManager.ClearAllDice();
+
+        currDiceRollData = new List<RollData>();
+        int randInt;
+
+        for (int i = 0; i < gameManager.GetBuildersDice(); i++) {
+
+            RollData rollData = new RollData();
+            randInt = UnityEngine.Random.Range(0, rollersLeft.Count);
+            rollData = rollersLeft[randInt].RollTestingBuildersDice(rollData);
+            currDiceRollData.Add(rollData);
+            rollersLeft.RemoveAt(randInt);
+
+        }
+
+        rollButton.SetActive(false);
+        acceptButton.GetComponent<Button>().interactable = false;
+        declineButton.GetComponent<Button>().interactable = false;
+        acceptButton.SetActive(true);
+        declineButton.SetActive(true);
+
+    }
+
+    public void FinishTestingRolls() {
+
+        acceptButton.GetComponent<Button>().interactable = true;
+        declineButton.GetComponent<Button>().interactable = true;
+
+    }
+
+    private void AcceptTestingRoll() {
+
+        newRollData.rollData.Add(currDiceRollData);
+        gameManager.ClearAllDice();
+        acceptButton.SetActive(false);
+        declineButton.SetActive(false);
+        rollButton.SetActive(true);
+
+    }
+
+    private void DeclineTestingRoll() {
+
+        gameManager.ClearAllDice();
+        acceptButton.SetActive(false);
+        declineButton.SetActive(false);
+        rollButton.SetActive(true);
+
+    }
+
+    private void SaveRollData() {
+
+        using (StreamWriter sw = new StreamWriter(gameManager.GetDiceRollFilePath())) {
+
+            importedRollData.rollData.AddRange(newRollData.rollData);
+            newRollData.rollData.Clear();
+
+            sw.Write(JsonConvert.SerializeObject(importedRollData, Formatting.Indented, new JsonSerializerSettings {
+
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+
+            }));
         }
     }
 }

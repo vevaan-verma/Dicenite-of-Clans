@@ -6,9 +6,9 @@ public class PlayerData : MonoBehaviour {
     [Header("Data")]
     [SerializeField] private int maxHealth;
     private int health;
-    private int wood;
-    private int brick;
-    private int metal;
+    public int wood;
+    public int brick;
+    public int metal;
 
     private void Awake() {
 
