@@ -52,7 +52,7 @@ public class RollRootObject {
 
     public List<List<RollData>> rollData {
 
-        get; private set;
+        get; set;
 
     }
 
@@ -67,19 +67,19 @@ public class RollData {
 
     public int diceRoller {
 
-        get; private set;
+        get; set;
 
     }
 
     public DiceRotation diceRotation {
 
-        get; private set;
+        get; set;
 
     }
 
     public float diceVelocity {
 
-        get; private set;
+        get; set;
 
     }
 
@@ -124,25 +124,25 @@ public class DiceRotation {
 
     public float x {
 
-        get; private set;
+        get; set;
 
     }
 
     public float y {
 
-        get; private set;
+        get; set;
 
     }
 
     public float z {
 
-        get; private set;
+        get; set;
 
     }
 
     public float w {
 
-        get; private set;
+        get; set;
 
     }
 

@@ -134,7 +134,7 @@ public class DiceUIController : MonoBehaviour {
 
     private void OnApplicationQuit() {
 
-        if (testingModeEnabled) {
+        if (testingModeEnabled && (importedRollData.rollData.Count > 0 || newRollData.rollData.Count > 0)) {
 
             SaveRollData();
 
