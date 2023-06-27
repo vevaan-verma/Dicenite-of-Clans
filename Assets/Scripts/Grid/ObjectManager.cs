@@ -9,20 +9,18 @@ public class ObjectManager : MonoBehaviour {
     [Header("Grid Preview")]
     public ObjectPreviewSystem previewSystem;
 
-    private void Start() {
+    private void Awake() {
 
         placedObjects = new List<GameObject>();
 
     }
 
-    public int PlaceObject(GameObject prefab) {
+    public int PlaceObject(GameObject prefab, Vector3 position, Quaternion rotation) {
 
-        Transform previewObject = previewSystem.GetPreviewObject();
-        Vector2Int size = previewSystem.size;
+        Vector2Int size = previewSystem.GetObjectSize();
+        GameObject newObject = Instantiate(prefab, position, rotation);
 
-        GameObject newObject = Instantiate(prefab, previewObject.position, previewObject.rotation);
-
-        switch (previewObject.rotation.eulerAngles.y) {
+        switch (rotation.eulerAngles.y) {
 
             case 90f:
 

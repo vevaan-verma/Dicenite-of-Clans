@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Rendering.Universal.ShaderGraph;
 using UnityEngine;
 
 [CreateAssetMenu]
@@ -20,7 +21,6 @@ public class ObjectData {
 
     }
 
-    [field: SerializeField]
     public int ID {
 
         get; private set;
@@ -66,6 +66,19 @@ public class ObjectData {
     public GameManager.MaterialType materialType {
 
         get; private set;
+
+    }
+
+    [field: SerializeField]
+    public float spawnProbability {
+
+        get; private set;
+
+    }
+
+    public void SetID(int ID) {
+
+        this.ID = ID;
 
     }
 }

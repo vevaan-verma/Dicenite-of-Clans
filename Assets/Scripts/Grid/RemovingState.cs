@@ -3,6 +3,7 @@ using UnityEngine;
 public class RemovingState : IBuildingState {
 
     [Header("References")]
+    private GameManager gameManager;
     private ObjectManager objectManager;
 
     [Header("Grid Data")]
@@ -19,9 +20,10 @@ public class RemovingState : IBuildingState {
     [Header("Audio")]
     private AudioManager audioManager;
 
-    public RemovingState(ObjectManager objectPlacer, GridData stackableData, GridData nonStackableData, Grid grid, ObjectPreviewSystem previewSystem, AudioManager audioManager) {
+    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData stackableData, GridData nonStackableData, Grid grid, ObjectPreviewSystem previewSystem, AudioManager audioManager) {
 
-        this.objectManager = objectPlacer;
+        this.gameManager = gameManager;
+        this.objectManager = objectManager;
         this.stackableData = stackableData;
         this.nonStackableData = nonStackableData;
         this.grid = grid;
@@ -41,14 +43,14 @@ public class RemovingState : IBuildingState {
     public void OnAction(Vector3Int gridPosition) {
 
         GridData selectedData = null;
-        Transform previewObject = objectManager.previewSystem.previewObject;
+        Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        if (!nonStackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false)) {
+        if (!nonStackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
 
             selectedData = nonStackableData;
 
-        } else if (!stackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false)) {
+        } else if (!stackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
 
             selectedData = stackableData;
 
@@ -83,10 +85,10 @@ public class RemovingState : IBuildingState {
 
     private bool CheckSelectionCompletelyEmpty(Vector3Int gridPosition) {
 
-        Transform previewObject = objectManager.previewSystem.previewObject;
+        Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        return !(stackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false) && nonStackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false));
+        return !(stackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight()) && nonStackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight()));
 
     }
 

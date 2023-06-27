@@ -1,7 +1,13 @@
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
+
+    [Header("State")]
+    private GameState gameState;
 
     [Header("Settings")]
     [SerializeField] private float diceStillTime;
@@ -9,7 +15,14 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private int attackDice;
     [SerializeField] private int gridWidth;
     [SerializeField] private int gridHeight;
-    [SerializeField] private string diceRollFilePath;
+    [SerializeField] private string diceRollFileName;
+    [SerializeField] private int maxPlayers;
+
+    public enum GameState {
+
+        None, Waiting, Live
+
+    }
 
     public enum MaterialType {
 
@@ -20,16 +33,20 @@ public class GameManager : MonoBehaviour {
     private void Start() {
 
         DontDestroyOnLoad(gameObject);
+        gameState = GameState.None;
 
     }
 
-    public void ClearAllDice() {
+    public void UpdateGameState(GameState state) {
 
-        foreach (DiceController diceController in FindObjectsOfType<DiceController>()) {
+        gameState = state;
 
-            Destroy(diceController.gameObject);
+    }
 
-        }
+    public GameState GetGameState() {
+
+        return gameState;
+
     }
 
     public float GetDiceStillTime() {
@@ -64,7 +81,13 @@ public class GameManager : MonoBehaviour {
 
     public string GetDiceRollFilePath() {
 
-        return diceRollFilePath;
+        return Application.persistentDataPath + Path.DirectorySeparatorChar + diceRollFileName;
+
+    }
+
+    public int GetMaxPlayers() {
+
+        return maxPlayers;
 
     }
 }

@@ -24,7 +24,7 @@ public class GridData {
         }
     }
 
-    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState) {
+    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight) {
 
         List<Vector3Int> occupiedPositions;
 
@@ -40,7 +40,7 @@ public class GridData {
 
         foreach (Vector3Int position in occupiedPositions) {
 
-            if (placedObjects.ContainsKey(position)) {
+            if (placedObjects.ContainsKey(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.y < -(gridHeight / 2) || position.y > gridHeight / 2 - 1) {
 
                 return false;
 

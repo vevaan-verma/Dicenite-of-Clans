@@ -473,6 +473,7 @@ GameObject:
   - component: {fileID: 321059115}
   - component: {fileID: 321059117}
   - component: {fileID: 321059118}
+  - component: {fileID: 321059119}
   m_Layer: 0
   m_Name: Roller3
   m_TagString: Untagged
@@ -549,8 +550,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &321059119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321059114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 6
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1100,54 +1123,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 438019323}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &471187252
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 471187254}
-  - component: {fileID: 471187253}
-  m_Layer: 0
-  m_Name: InputManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &471187253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 471187252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 514f8a85729f6844da397328c549b576, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  placementCamera: {fileID: 0}
-  gridMask:
-    serializedVersion: 2
-    m_Bits: 64
---- !u!4 &471187254
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 471187252}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 10
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &503687647
 GameObject:
   m_ObjectHideFlags: 0
@@ -1311,6 +1286,7 @@ GameObject:
   - component: {fileID: 591965042}
   - component: {fileID: 591965044}
   - component: {fileID: 591965045}
+  - component: {fileID: 591965046}
   m_Layer: 0
   m_Name: Roller6
   m_TagString: Untagged
@@ -1387,8 +1363,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &591965046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591965041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 7
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &767378907
 GameObject:
   m_ObjectHideFlags: 0
@@ -1659,6 +1657,7 @@ GameObject:
   - component: {fileID: 856538460}
   - component: {fileID: 856538462}
   - component: {fileID: 856538463}
+  - component: {fileID: 856538464}
   m_Layer: 0
   m_Name: Roller0
   m_TagString: Untagged
@@ -1735,8 +1734,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &856538464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 856538459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 0
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &856643688
 GameObject:
   m_ObjectHideFlags: 0
@@ -2263,6 +2284,7 @@ GameObject:
   - component: {fileID: 1137549300}
   - component: {fileID: 1137549302}
   - component: {fileID: 1137549303}
+  - component: {fileID: 1137549304}
   m_Layer: 0
   m_Name: Roller1
   m_TagString: Untagged
@@ -2339,8 +2361,166 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &1137549304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137549299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 4
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!1 &1151296867
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1151296868}
+  - component: {fileID: 1151296870}
+  - component: {fileID: 1151296869}
+  m_Layer: 5
+  m_Name: Text (TMP)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1151296868
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151296867}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99976546, y: 0.99976546, z: 0.99976546}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2095280641}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.000030517578, y: 0}
+  m_SizeDelta: {x: 1920, y: 75}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1151296869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151296867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 6475c6f71085d184c831fde5be1c93e5, type: 2}
+  m_sharedMaterial: {fileID: -7346505300002139991, guid: 6475c6f71085d184c831fde5be1c93e5,
+    type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 50
+  m_fontSizeBase: 50
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_enableWordWrapping: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 1
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1151296870
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151296867}
+  m_CullTransparentMesh: 1
 --- !u!1 &1178810631
 GameObject:
   m_ObjectHideFlags: 0
@@ -2514,56 +2694,6 @@ RectTransform:
   m_AnchoredPosition: {x: -50, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1272991517
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1272991519}
-  - component: {fileID: 1272991520}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1272991519
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1272991517}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1272991520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1272991517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4e0dfb7ca17b3849807929d7cb152d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  diceStillTime: 0.1
-  buildersDice: 2
-  attackDice: 3
-  gridWidth: 8
-  gridHeight: 8
-  diceRollFilePath: Assets/dice-rolls.txt
 --- !u!1 &1358633154
 GameObject:
   m_ObjectHideFlags: 0
@@ -2710,7 +2840,7 @@ MonoBehaviour:
   materialLerpDuration: 1
   diceHUDFadeDuration: 0.3
   diceHUDFadeOpacity: 0.3
-  kingdomSceneName: KingdomScene
+  nextSceneName: KingdomScene
   loadingFadeDuration: 0.3
   loadingFadeOpacity: 1
 --- !u!114 &1374867329
@@ -3033,6 +3163,7 @@ GameObject:
   - component: {fileID: 1507720756}
   - component: {fileID: 1507720758}
   - component: {fileID: 1507720759}
+  - component: {fileID: 1507720760}
   m_Layer: 0
   m_Name: Roller5
   m_TagString: Untagged
@@ -3109,8 +3240,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &1507720760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507720755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 3
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1569281491
 GameObject:
   m_ObjectHideFlags: 0
@@ -3545,6 +3698,7 @@ GameObject:
   - component: {fileID: 1721942604}
   - component: {fileID: 1721942606}
   - component: {fileID: 1721942607}
+  - component: {fileID: 1721942608}
   m_Layer: 0
   m_Name: Roller4
   m_TagString: Untagged
@@ -3621,8 +3775,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &1721942608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721942603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1730006912
 GameObject:
   m_ObjectHideFlags: 0
@@ -4191,9 +4367,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  wood: 0
-  brick: 0
-  metal: 0
 --- !u!4 &1888991773
 Transform:
   m_ObjectHideFlags: 0
@@ -4207,7 +4380,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1902861149
 GameObject:
@@ -4349,6 +4522,7 @@ GameObject:
   - component: {fileID: 1977080605}
   - component: {fileID: 1977080607}
   - component: {fileID: 1977080608}
+  - component: {fileID: 1977080609}
   m_Layer: 0
   m_Name: Roller2
   m_TagString: Untagged
@@ -4425,8 +4599,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943b890285fa0b34ea0d9818ff6c0288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dice: {fileID: 4026506357254981488, guid: e8eda2c7dec5d754bbfa826dd88979f9, type: 3}
+  dice: {fileID: 6812922094340551078, guid: 9d01b0d56a9d9a94095a941b7963d4ac, type: 3}
   diceVelocity: 45
+--- !u!114 &1977080609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977080604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 5
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1985337964
 GameObject:
   m_ObjectHideFlags: 0
@@ -5188,7 +5384,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1151296868}
   m_Father: {fileID: 1374867332}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5210,7 +5407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

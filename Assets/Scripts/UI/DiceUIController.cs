@@ -7,14 +7,13 @@ using UnityEngine.SceneManagement;
 using System;
 using System.IO;
 using Newtonsoft.Json;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEngine.Rendering.Universal;
+using Photon.Pun;
 
-public class DiceUIController : MonoBehaviour {
+public class DiceUIController : MonoBehaviourPunCallbacks {
 
     [Header("References")]
     [SerializeField] private List<DiceRoller> diceRollers;
+    private NetworkManager networkManager;
     private GameManager gameManager;
     private PlayerData playerData;
     private List<DiceRoller> rollersLeft;
@@ -62,6 +61,15 @@ public class DiceUIController : MonoBehaviour {
 
     private void Start() {
 
+        foreach (NetworkManager networkManager in FindObjectsOfType<NetworkManager>()) {
+
+            if (networkManager.photonView.IsMine) {
+
+                this.networkManager = networkManager;
+
+            }
+        }
+
         gameManager = FindObjectOfType<GameManager>();
         playerData = FindObjectOfType<PlayerData>();
 
@@ -72,7 +80,7 @@ public class DiceUIController : MonoBehaviour {
         }
 
         loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
-        StartFadeOutLoadingScreen(new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f));
+        loadingScreen.gameObject.SetActive(true);
 
         healthSlider.maxValue = playerData.GetMaxHealth();
         UpdateHealthSlider();
@@ -100,7 +108,7 @@ public class DiceUIController : MonoBehaviour {
 
         if (!File.Exists(gameManager.GetDiceRollFilePath())) {
 
-            File.Create(gameManager.GetDiceRollFilePath());
+            File.Create(gameManager.GetDiceRollFilePath()).Close();
 
         }
 
@@ -108,10 +116,19 @@ public class DiceUIController : MonoBehaviour {
 
         using (StreamReader sr = new StreamReader(gameManager.GetDiceRollFilePath())) {
 
+            if (Application.isEditor) {
+
+                Debug.Log("File successfully opened at " + gameManager.GetDiceRollFilePath());
+
+            }
+
             if (sr.EndOfStream) {
 
-                Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+                if (Application.isEditor) {
 
+                    Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+
+                }
             } else {
 
                 importedRollData = JsonConvert.DeserializeObject<RollRootObject>(sr.ReadToEnd());
@@ -121,11 +138,22 @@ public class DiceUIController : MonoBehaviour {
 
         newRollData = new RollRootObject();
 
+        PhotonNetwork.AutomaticallySyncScene = false;
+
+        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
+
+            networkManager.ReadyPlayer();
+
+        } else {
+
+            StartFadeOutLoadingScreen();
+
+        }
     }
 
     private void Update() {
 
-        if ((Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) || (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) || (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T))) {
+        if ((Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) || (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKey(KeyCode.T)) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) || (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.T)) && Application.isEditor) {
 
             OnTestingModeToggle?.Invoke();
 
@@ -145,26 +173,47 @@ public class DiceUIController : MonoBehaviour {
 
         if (importedRollData.rollData.Count == 0) {
 
-            Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+            if (Application.isEditor) {
+
+                Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+                return;
+
+            }
+        }
+
+        if (gameManager.GetGameState() != GameManager.GameState.Live) {
+
             return;
 
         }
 
         DisableRollButtons();
-
-        gameManager.ClearAllDice();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
+        if (PhotonNetwork.IsMasterClient) {
+
+            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        }
+
         int rollIndex = UnityEngine.Random.Range(0, importedRollData.rollData.Count);
+        DiceRotation rotation;
 
         for (int i = 0; i < gameManager.GetBuildersDice(); i++) {
 
-            diceRollers[importedRollData.rollData[rollIndex][i].GetDiceRoller()].RollBuildersDice(importedRollData.rollData[rollIndex][i].GetDiceRotation(), importedRollData.rollData[rollIndex][i].GetDiceVelocity());
+            rotation = importedRollData.rollData[rollIndex][i].GetDiceRotation();
+            diceRollers[importedRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollBuildersDiceRPC", RpcTarget.All, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedRollData.rollData[rollIndex][i].GetDiceVelocity());
 
         }
     }
 
     private void RollAttackDice() {
+
+        if (gameManager.GetGameState() != GameManager.GameState.Live) {
+
+            return;
+
+        }
 
         DisableRollButtons();
 
@@ -176,8 +225,13 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        gameManager.ClearAllDice();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
+
+        if (PhotonNetwork.IsMasterClient) {
+
+            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        }
 
         int randInt;
 
@@ -206,7 +260,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    protected void StartFadeOutLoadingScreen(Color targetColor) {
+    public void StartFadeOutLoadingScreen() {
 
         if (loadingFadeCoroutine != null) {
 
@@ -214,7 +268,7 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, targetColor, false, ""));
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f), false, ""));
 
     }
 
@@ -380,7 +434,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    public void StartFadeInDiceHud() {
+    public void StartFadeInDiceHUD() {
 
         if (diceHUDFadeCoroutine != null) {
 
@@ -400,7 +454,7 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        kingdomButton.GetComponent<SlideUIButton>().DisableSlideIn();
+        kingdomButton.GetComponent<SlidingButton>().DisableSlideIn();
         diceHUDFadeCoroutine = StartCoroutine(FadeDiceHUD(diceHUD.alpha, targetOpacity, false));
 
     }
@@ -422,7 +476,7 @@ public class DiceUIController : MonoBehaviour {
 
         if (fadeIn) {
 
-            kingdomButton.GetComponent<SlideUIButton>().EnableSlideIn();
+            kingdomButton.GetComponent<SlidingButton>().EnableSlideIn();
 
         }
     }
@@ -435,7 +489,12 @@ public class DiceUIController : MonoBehaviour {
 
     private void ToggleTestingMode() {
 
-        gameManager.ClearAllDice();
+        if (PhotonNetwork.IsMasterClient) {
+
+            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        }
+
         testingModeEnabled = !testingModeEnabled;
 
         if (testingModeEnabled) {
@@ -454,7 +513,7 @@ public class DiceUIController : MonoBehaviour {
             testingHUD.gameObject.SetActive(false);
             diceHUD.gameObject.SetActive(true);
             EnableRollButtons();
-            StartFadeInDiceHud();
+            StartFadeInDiceHUD();
 
         }
     }
@@ -469,7 +528,11 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        gameManager.ClearAllDice();
+        if (PhotonNetwork.IsMasterClient) {
+
+            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        }
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -502,7 +565,13 @@ public class DiceUIController : MonoBehaviour {
     private void AcceptTestingRoll() {
 
         newRollData.rollData.Add(currDiceRollData);
-        gameManager.ClearAllDice();
+
+        if (PhotonNetwork.IsMasterClient) {
+
+            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        }
+
         acceptButton.SetActive(false);
         declineButton.SetActive(false);
         rollButton.SetActive(true);
@@ -511,7 +580,12 @@ public class DiceUIController : MonoBehaviour {
 
     private void DeclineTestingRoll() {
 
-        gameManager.ClearAllDice();
+        if (PhotonNetwork.IsMasterClient) {
+
+            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        }
+
         acceptButton.SetActive(false);
         declineButton.SetActive(false);
         rollButton.SetActive(true);
@@ -521,6 +595,12 @@ public class DiceUIController : MonoBehaviour {
     private void SaveRollData() {
 
         using (StreamWriter sw = new StreamWriter(gameManager.GetDiceRollFilePath())) {
+
+            if (Application.isEditor) {
+
+                Debug.Log("Serializing roll data to file!");
+
+            }
 
             importedRollData.rollData.AddRange(newRollData.rollData);
             newRollData.rollData.Clear();

@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class ObjectPreviewSystem : MonoBehaviour {
@@ -7,7 +6,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
     [SerializeField] private GameObject cellIndicator;
     private AudioManager audioManager;
     private Transform cellIndicatorChild;
-    private InputManager inputManager;
+    private GridInputManager inputManager;
     private Renderer cellIndicatorRenderer;
 
     [Header("Grid Settings")]
@@ -21,16 +20,16 @@ public class ObjectPreviewSystem : MonoBehaviour {
     [SerializeField] private float previewYOffset;
 
     [Header("Object Data")]
-    [HideInInspector] public Transform previewObject;
-    [HideInInspector] public Vector2Int size;
+    private Transform previewObject;
+    private Vector2Int objectSize;
     private GameObject prefab;
 
     [Header("Object Rotation")]
     private float yRotation;
 
-    private void Start() {
+    private void Awake() {
 
-        inputManager = FindObjectOfType<InputManager>();
+        inputManager = FindObjectOfType<GridInputManager>();
         cellIndicatorRenderer = cellIndicator.GetComponentInChildren<Renderer>();
         audioManager = FindObjectOfType<AudioManager>();
 
@@ -50,7 +49,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
     public void ShowPlacementPreview(GameObject prefab, Vector2Int size) {
 
         this.prefab = prefab;
-        this.size = size;
+        this.objectSize = size;
 
         yRotation = 0f;
 
@@ -69,7 +68,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
         HidePlacementPreview();
 
         this.prefab = prefab;
-        this.size = size;
+        this.objectSize = size;
         this.yRotation = yRotation;
 
         PrepareCellIndicator(size, false);
@@ -227,7 +226,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     public void RotatePreview() {
 
-        Vector2Int newSize = size;
+        Vector2Int newSize = objectSize;
 
         audioManager.PlaySound(AudioManager.SoundType.Rotate);
 
@@ -235,8 +234,8 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
             case 0f:
 
-            newSize.x = size.y;
-            newSize.y = size.x;
+            newSize.x = objectSize.y;
+            newSize.y = objectSize.x;
 
             UpdatePlacementPreview(prefab, newSize, 90f);
             previewObject.transform.GetChild(0).localPosition -= new Vector3(newSize.y, 0f, 0f);
@@ -244,8 +243,8 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
             case 90f:
 
-            newSize.x = size.y;
-            newSize.y = size.x;
+            newSize.x = objectSize.y;
+            newSize.y = objectSize.x;
 
             UpdatePlacementPreview(prefab, newSize, 180f);
             previewObject.transform.GetChild(0).localPosition -= new Vector3(newSize.x, 0f, newSize.y);
@@ -253,8 +252,8 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
             case 180f:
 
-            newSize.x = size.y;
-            newSize.y = size.x;
+            newSize.x = objectSize.y;
+            newSize.y = objectSize.x;
 
             UpdatePlacementPreview(prefab, newSize, 270f);
             previewObject.transform.GetChild(0).localPosition -= new Vector3(0f, 0f, newSize.x);
@@ -262,8 +261,8 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
             case 270f:
 
-            newSize.x = size.y;
-            newSize.y = size.x;
+            newSize.x = objectSize.y;
+            newSize.y = objectSize.x;
 
             UpdatePlacementPreview(prefab, newSize, 0f);
             break;
@@ -318,6 +317,12 @@ public class ObjectPreviewSystem : MonoBehaviour {
     public Transform GetPreviewObject() {
 
         return previewObject;
+
+    }
+
+    public Vector2Int GetObjectSize() {
+
+        return objectSize;
 
     }
 }

@@ -36,7 +36,7 @@ public class KingdomUIController : MonoBehaviour {
     private Coroutine metalLerpCoroutine;
 
     [Header("Scene Transitions")]
-    [SerializeField] private string diceSceneName;
+    [SerializeField] private string nextSceneName;
     [SerializeField] private float loadingFadeDuration;
     [SerializeField] private float loadingFadeOpacity;
     private Coroutine loadingFadeCoroutine;
@@ -52,7 +52,7 @@ public class KingdomUIController : MonoBehaviour {
         }
 
         loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
-        StartFadeOutLoadingScreen(new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f));
+        StartFadeOutLoadingScreen();
 
         storeButton.onClick.AddListener(OpenStoreHUD);
         storeCloseButton.onClick.AddListener(CloseStoreHUD);
@@ -85,11 +85,11 @@ public class KingdomUIController : MonoBehaviour {
 
         loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
 
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, loadingFadeOpacity), true, diceSceneName));
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, loadingFadeOpacity), true, nextSceneName));
 
     }
 
-    private void StartFadeOutLoadingScreen(Color targetColor) {
+    private void StartFadeOutLoadingScreen() {
 
         if (loadingFadeCoroutine != null) {
 
@@ -97,7 +97,7 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, targetColor, false, ""));
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f), false, ""));
 
     }
 
@@ -130,8 +130,8 @@ public class KingdomUIController : MonoBehaviour {
 
     private void OpenStoreHUD() {
 
-        storeButton.GetComponent<SlideUIButton>().DisableSlideIn();
-        diceButton.GetComponent<SlideUIButton>().DisableSlideIn();
+        storeButton.GetComponent<SlidingButton>().DisableSlideIn();
+        diceButton.GetComponent<SlidingButton>().DisableSlideIn();
 
         UpdateWoodCount();
         UpdateBrickCount();
@@ -143,13 +143,13 @@ public class KingdomUIController : MonoBehaviour {
 
     public void CloseStoreHUD() {
 
-        storeButton.GetComponent<SlideUIButton>().EnableSlideIn();
-        diceButton.GetComponent<SlideUIButton>().EnableSlideIn();
+        storeButton.GetComponent<SlidingButton>().EnableSlideIn();
+        diceButton.GetComponent<SlidingButton>().EnableSlideIn();
         StartFadeOutStoreHUD();
 
     }
 
-    public void StartFadeInKingdomHud() {
+    public void StartFadeInKingdomHUD() {
 
         if (fadeKingdomHUDCoroutine != null) {
 

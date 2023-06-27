@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class DiceSide : MonoBehaviour {
@@ -7,7 +8,7 @@ public class DiceSide : MonoBehaviour {
     private DiceController diceController;
     private DiceUIController diceUIController;
 
-    private void Start() {
+    private void Awake() {
 
         playerData = FindObjectOfType<PlayerData>();
         diceController = transform.parent.GetComponent<DiceController>();
@@ -21,7 +22,7 @@ public class DiceSide : MonoBehaviour {
 
             if (diceController.diceStill && collider.CompareTag("DiceGround")) {
 
-                diceController.UIController.StartFadeInDiceHud();
+                diceController.UIController.StartFadeInDiceHUD();
                 diceController.rollNumber = 7 - (transform.name[transform.name.Length - 1] - '0');
 
                 if (transform.parent.CompareTag("BuildersDice")) {

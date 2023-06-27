@@ -1,8 +1,8 @@
-using Newtonsoft.Json.Linq;
+using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DiceRoller : MonoBehaviour {
+public class DiceRoller : MonoBehaviourPunCallbacks {
 
     [Header("References")]
     [SerializeField] private GameObject dice;
@@ -10,10 +10,10 @@ public class DiceRoller : MonoBehaviour {
     [Header("Roll Settings")]
     [SerializeField] private float diceVelocity;
 
-    public void RollBuildersDice(DiceRotation rotation, float diceVelocity) {
+    [PunRPC]
+    public void RollBuildersDiceRPC(Quaternion rotation, float diceVelocity) {
 
-        Quaternion newRotation = new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW());
-        Transform newDice = Instantiate(dice, transform.position, newRotation).transform;
+        Transform newDice = Instantiate(dice, transform.position, rotation).transform;
 
         newDice.tag = "BuildersDice";
         newDice.GetComponent<Rigidbody>().AddForce(newDice.forward * diceVelocity, ForceMode.VelocityChange);
@@ -40,7 +40,7 @@ public class DiceRoller : MonoBehaviour {
 
     public void RollAttackDice() {
 
-        Transform newDice = Instantiate(dice, transform.position, Random.rotation).transform;
+        Transform newDice = PhotonNetwork.Instantiate(dice.name, transform.position, Random.rotation).transform;
 
         newDice.tag = "AttackDice";
         newDice.GetComponent<Rigidbody>().AddForce(newDice.forward * diceVelocity, ForceMode.VelocityChange);
