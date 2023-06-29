@@ -89,7 +89,7 @@ public class KingdomUIController : MonoBehaviour {
 
     }
 
-    private void StartFadeOutLoadingScreen() {
+    public void StartFadeOutLoadingScreen() {
 
         if (loadingFadeCoroutine != null) {
 

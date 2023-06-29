@@ -2840,7 +2840,7 @@ MonoBehaviour:
   materialLerpDuration: 1
   diceHUDFadeDuration: 0.3
   diceHUDFadeOpacity: 0.3
-  nextSceneName: KingdomScene
+  kingdomSceneName: KingdomScene
   loadingFadeDuration: 0.3
   loadingFadeOpacity: 1
 --- !u!114 &1374867329

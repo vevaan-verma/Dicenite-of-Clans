@@ -6,7 +6,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
     [Header("References")]
     private GameManager gameManager;
-    private DiceUIController diceUIController;
+    private KingdomUIController kingdomUIController;
 
     private void Start() {
 
@@ -53,8 +53,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     [PunRPC]
     public void StartGameRPC() {
 
-        diceUIController = FindObjectOfType<DiceUIController>();
-        diceUIController.StartFadeOutLoadingScreen();
+        kingdomUIController = FindObjectOfType<KingdomUIController>();
+        kingdomUIController.StartFadeOutLoadingScreen();
 
     }
 

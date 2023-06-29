@@ -40,7 +40,7 @@ public class GridData {
 
         foreach (Vector3Int position in occupiedPositions) {
 
-            if (placedObjects.ContainsKey(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.y < -(gridHeight / 2) || position.y > gridHeight / 2 - 1) {
+            if (placedObjects.ContainsKey(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.z < -(gridHeight / 2) || position.z > gridHeight / 2 - 1) {
 
                 return false;
 

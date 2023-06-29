@@ -140,15 +140,6 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         PhotonNetwork.AutomaticallySyncScene = false;
 
-        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
-
-            networkManager.ReadyPlayer();
-
-        } else {
-
-            StartFadeOutLoadingScreen();
-
-        }
     }
 
     private void Update() {

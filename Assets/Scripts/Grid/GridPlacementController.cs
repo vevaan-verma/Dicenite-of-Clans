@@ -1,4 +1,7 @@
+using ExitGames.Client.Photon;
+using Photon.Pun;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridPlacementController : MonoBehaviour {
@@ -23,6 +26,8 @@ public class GridPlacementController : MonoBehaviour {
     [SerializeField] private PlaceableObjectDatabase objectDatabase;
     private Vector3Int lastPosition;
     private bool randomizingObjects;
+    private int x;
+    private int y;
 
     private void Start() {
 
@@ -42,9 +47,13 @@ public class GridPlacementController : MonoBehaviour {
 
         lastPosition = Vector3Int.zero;
 
-        StartCoroutine(RandomizeGridObjects());
         StopPlacement();
 
+        //if (PhotonNetwork.IsMasterClient) {
+
+        StartCoroutine(RandomizeGridObjects());
+
+        //}
     }
 
     private void Update() {
@@ -57,7 +66,7 @@ public class GridPlacementController : MonoBehaviour {
 
         Vector3Int gridPosition = grid.WorldToCell(inputManager.GetSelectedGridPosition());
 
-        if (lastPosition != gridPosition) {
+        if (lastPosition != gridPosition && !randomizingObjects) {
 
             buildingState.UpdateState(gridPosition);
             lastPosition = gridPosition;
@@ -67,38 +76,118 @@ public class GridPlacementController : MonoBehaviour {
 
     public IEnumerator RandomizeGridObjects() {
 
-        for (int x = -(gameManager.GetGridWidth() / 2); x < gameManager.GetGridWidth() / 2; x++) {
+        randomizingObjects = true;
 
-            for (int y = -(gameManager.GetGridHeight() / 2); y < gameManager.GetGridHeight() / 2; y++) {
+        for (x = -(gameManager.GetGridWidth() / 2); x < gameManager.GetGridWidth() / 2; x++) {
 
-                randomizingObjects = true;
+            for (y = -(gameManager.GetGridHeight() / 2); y < gameManager.GetGridHeight() / 2; y++) {
 
-                ObjectData objData = null;
-                float highestProbability = 0f;
+                ObjectData objData = objectDatabase.objectData[Random.Range(0, objectDatabase.objectData.Count)];
+                float probability = Random.Range(0f, 1f);
+                float rotation = 0f;
 
-                foreach (ObjectData data in objectDatabase.objectData) {
+                buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
+                buildingState.UpdateState(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)));
 
-                    if ((data.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), data.size, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+                switch (Random.Range(0, 4)) {
 
-                        float probability = Random.Range(0f, 1f);
+                    case 1:
 
-                        if (probability < data.spawnProbability && probability > highestProbability) {
+                    rotation = 90f;
+                    previewSystem.RotatePreview();
+                    break;
 
-                            objData = data;
-                            highestProbability = probability;
+                    case 2:
 
-                        }
+                    rotation = 180f;
+
+                    for (int i = 0; i < 2; i++) {
+
+                        previewSystem.RotatePreview();
+
                     }
+
+                    break;
+
+                    case 3:
+
+                    rotation = 270f;
+
+                    for (int i = 0; i < 3; i++) {
+
+                        previewSystem.RotatePreview();
+
+                    }
+
+                    break;
+
                 }
 
-                if (objData != null) {
+                if (!(objData.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
 
-                    int rotationNum = Random.Range(0, 4);
+                    buildingState.EndState();
+                    continue;
+
+                }
+
+                while (probability >= objData.spawnProbability || !(objData.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+
+                    objData = objectDatabase.objectData[Random.Range(0, objectDatabase.objectData.Count)];
+                    probability = Random.Range(0f, 1f);
+                    rotation = 0f;
+
+                    if (buildingState != null) {
+
+                        buildingState.EndState();
+
+                    }
 
                     buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
                     buildingState.UpdateState(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)));
-                    PlaceObject();
-                    yield return new WaitForSeconds(0.05f);
+
+                    switch (Random.Range(0, 4)) {
+
+                        case 1:
+
+                        rotation = 90f;
+                        previewSystem.RotatePreview();
+                        break;
+
+                        case 2:
+
+                        rotation = 180f;
+
+                        for (int i = 0; i < 2; i++) {
+
+                            previewSystem.RotatePreview();
+
+                        }
+
+                        break;
+
+                        case 3:
+
+                        rotation = 270f;
+
+                        for (int i = 0; i < 3; i++) {
+
+                            previewSystem.RotatePreview();
+
+                        }
+
+                        break;
+
+                    }
+
+                    yield return null;
+
+                }
+
+                PlaceObject();
+
+                while (previewSystem.GetPreviewObject() != null) {
+
+                    yield return null;
 
                 }
             }

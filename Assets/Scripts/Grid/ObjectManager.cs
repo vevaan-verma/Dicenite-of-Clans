@@ -34,7 +34,7 @@ public class ObjectManager : MonoBehaviour {
 
             case 270f:
 
-            newObject.transform.GetChild(0).localPosition -= new Vector3(0f, 0f, size.y);
+            newObject.transform.GetChild(0).localPosition -= new Vector3(0f, 0f, size.x);
             break;
 
         }

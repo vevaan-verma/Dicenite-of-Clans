@@ -46,7 +46,7 @@ public class PlacementState : IBuildingState {
 
             }
 
-            previewSystem.ShowPlacementPreview(objectDatabase.objectData[selectedObjectIndex].prefab, objectDatabase.objectData[selectedObjectIndex].size);
+            previewSystem.ShowPlacementPreview(objectDatabase.objectData[selectedObjectIndex].prefab, objectDatabase.objectData[selectedObjectIndex].size, userPlacing);
 
         } else {
 
@@ -75,16 +75,27 @@ public class PlacementState : IBuildingState {
 
         }
 
-        audioManager.PlaySound(AudioManager.SoundType.Place);
+        if (userPlacing) {
+
+            audioManager.PlaySound(AudioManager.SoundType.Place);
+
+        }
+
         int index = objectManager.PlaceObject(objectDatabase.objectData[selectedObjectIndex].prefab, previewSystem.GetPreviewObject().position, previewSystem.GetPreviewObject().rotation);
 
-        (objectDatabase.objectData[selectedObjectIndex].stackable ? stackableData : nonStackableData).AddObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, objectDatabase.objectData[selectedObjectIndex].ID, index, previewSystem.GetPreviewObject().rotation.eulerAngles.y);
+        (objectDatabase.objectData[selectedObjectIndex].stackable ? stackableData : nonStackableData).AddObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objectDatabase.objectData[selectedObjectIndex].size, objectDatabase.objectData[selectedObjectIndex].ID, index, previewSystem.GetPreviewObject().rotation.eulerAngles.y);
 
-        previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), false);
+        previewSystem.UpdatePosition(previewSystem.GetPreviewObject().position, false);
 
     }
 
     private bool CheckPlacementValidity(Vector3Int gridPosition) {
+
+        if (previewSystem.GetPreviewObject() == null) {
+
+            return false;
+
+        }
 
         return (objectDatabase.objectData[selectedObjectIndex].stackable ? stackableData : nonStackableData).CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight());
 
@@ -97,8 +108,6 @@ public class PlacementState : IBuildingState {
     }
 
     public void UpdateState(Vector3Int gridPosition) {
-
-        Debug.Log(gridPosition);
 
         int gridWidth = gameManager.GetGridWidth();
         int gridHeight = gameManager.GetGridHeight();

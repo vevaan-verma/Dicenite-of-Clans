@@ -8,6 +8,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
     private Transform cellIndicatorChild;
     private GridInputManager inputManager;
     private Renderer cellIndicatorRenderer;
+    private bool userPlacing;
 
     [Header("Grid Settings")]
     [SerializeField] private Transform grid;
@@ -46,10 +47,11 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     }
 
-    public void ShowPlacementPreview(GameObject prefab, Vector2Int size) {
+    public void ShowPlacementPreview(GameObject prefab, Vector2Int size, bool userPlacing) {
 
         this.prefab = prefab;
         this.objectSize = size;
+        this.userPlacing = userPlacing;
 
         yRotation = 0f;
 
@@ -228,7 +230,11 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
         Vector2Int newSize = objectSize;
 
-        audioManager.PlaySound(AudioManager.SoundType.Rotate);
+        if (userPlacing) {
+
+            audioManager.PlaySound(AudioManager.SoundType.Rotate);
+
+        }
 
         switch (yRotation) {
 
