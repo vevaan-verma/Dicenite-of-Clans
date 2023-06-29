@@ -98,10 +98,10 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
         DontDestroyOnLoad(PhotonNetwork.Instantiate(playerPrefab.name, Vector3.zero, Quaternion.identity));
         loadingScreen.gameObject.SetActive(true);
         SetLoadingText("Waiting for Players...");
+        gameManager.UpdateGameState(GameManager.GameState.Waiting);
 
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers()) {
 
-            gameManager.UpdateGameState(GameManager.GameState.Waiting);
             PhotonNetwork.LoadLevel(nextSceneName);
 
         }
@@ -109,9 +109,10 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     public override void OnPlayerEnteredRoom(Player newPlayer) {
 
+        gameManager.UpdateGameState(GameManager.GameState.Waiting);
+
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers()) {
 
-            gameManager.UpdateGameState(GameManager.GameState.Waiting);
             PhotonNetwork.LoadLevel(nextSceneName);
 
         }

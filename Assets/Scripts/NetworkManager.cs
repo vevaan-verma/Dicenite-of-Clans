@@ -7,6 +7,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     [Header("References")]
     private GameManager gameManager;
     private KingdomUIController kingdomUIController;
+    private GridPlacementController gridPlacementController;
 
     private void Start() {
 
@@ -33,7 +34,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
             if (allReady) {
 
-                gameManager.UpdateGameState(GameManager.GameState.Live);
                 photonView.RPC("StartGameRPC", RpcTarget.All);
 
             }
@@ -53,6 +53,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     [PunRPC]
     public void StartGameRPC() {
 
+        gameManager.UpdateGameState(GameManager.GameState.Live);
         kingdomUIController = FindObjectOfType<KingdomUIController>();
         kingdomUIController.StartFadeOutLoadingScreen();
 

@@ -80,7 +80,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         }
 
         loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
-        loadingScreen.gameObject.SetActive(true);
+        StartFadeOutLoadingScreen();
 
         healthSlider.maxValue = playerData.GetMaxHealth();
         UpdateHealthSlider();
@@ -138,8 +138,6 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         newRollData = new RollRootObject();
 
-        PhotonNetwork.AutomaticallySyncScene = false;
-
     }
 
     private void Update() {
@@ -174,6 +172,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         if (gameManager.GetGameState() != GameManager.GameState.Live) {
 
+            Debug.Log("not live");
             return;
 
         }

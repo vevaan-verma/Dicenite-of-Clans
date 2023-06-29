@@ -1,5 +1,3 @@
-using ExitGames.Client.Photon;
-using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -47,11 +45,6 @@ public class GridPlacementController : MonoBehaviour {
 
         StopPlacement();
 
-        //if (PhotonNetwork.IsMasterClient) {
-
-        StartCoroutine(RandomizeGridObjects());
-
-        //}
     }
 
     private void Update() {

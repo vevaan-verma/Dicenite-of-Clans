@@ -1172,7 +1172,7 @@ MonoBehaviour:
   gridWidth: 8
   gridHeight: 8
   diceRollFileName: dice-rolls.dat
-  maxPlayers: 1
+  maxPlayers: 2
 --- !u!4 &1364572943
 Transform:
   m_ObjectHideFlags: 0

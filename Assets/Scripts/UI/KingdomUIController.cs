@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections.Generic;
 
 public class KingdomUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private PlaceableObjectDatabase placeableObjectDatabase;
+    private NetworkManager networkManager;
     private PlayerData playerData;
 
     [Header("UI References")]
@@ -43,6 +43,15 @@ public class KingdomUIController : MonoBehaviour {
 
     private void Start() {
 
+        foreach (NetworkManager networkManager in FindObjectsOfType<NetworkManager>()) {
+
+            if (networkManager.photonView.IsMine) {
+
+                this.networkManager = networkManager;
+
+            }
+        }
+
         playerData = FindObjectOfType<PlayerData>();
 
         if (loadingFadeCoroutine != null) {
@@ -52,7 +61,7 @@ public class KingdomUIController : MonoBehaviour {
         }
 
         loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
-        StartFadeOutLoadingScreen();
+        loadingScreen.gameObject.SetActive(true);
 
         storeButton.onClick.AddListener(OpenStoreHUD);
         storeCloseButton.onClick.AddListener(CloseStoreHUD);
@@ -69,6 +78,16 @@ public class KingdomUIController : MonoBehaviour {
         foreach (ObjectData objectData in placeableObjectDatabase.objectData) {
 
             Instantiate(storeItemTemplate, storeContent).GetComponent<StoreItemButton>().InitializeButton(objectData);
+
+        }
+
+        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
+
+            networkManager.ReadyPlayer();
+
+        } else {
+
+            StartFadeOutLoadingScreen();
 
         }
     }
