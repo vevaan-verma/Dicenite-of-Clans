@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlaceableObjectDatabase
   m_EditorClassIdentifier: 
   objectData:
-  - <name>k__BackingField: Wooden Barrier
+  - <name>k__BackingField: Wood Barrier
     <icon>k__BackingField: {fileID: 21300000, guid: 2ce4c40fc49acd949b335f000ebfcd88,
       type: 3}
     <size>k__BackingField: {x: 1, y: 1}
@@ -22,7 +22,7 @@ MonoBehaviour:
     <stackable>k__BackingField: 0
     <price>k__BackingField: 10
     <materialType>k__BackingField: 0
-    <spawnProbability>k__BackingField: 1
+    <spawnProbability>k__BackingField: 10
   - <name>k__BackingField: Brick Barrier
     <icon>k__BackingField: {fileID: 21300000, guid: e9b7cefa5a5c5d44e966eb810da4e66d,
       type: 3}
@@ -32,4 +32,4 @@ MonoBehaviour:
     <stackable>k__BackingField: 0
     <price>k__BackingField: 15
     <materialType>k__BackingField: 1
-    <spawnProbability>k__BackingField: 0.5
+    <spawnProbability>k__BackingField: 5

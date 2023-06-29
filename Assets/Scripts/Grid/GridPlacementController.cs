@@ -26,8 +26,6 @@ public class GridPlacementController : MonoBehaviour {
     [SerializeField] private PlaceableObjectDatabase objectDatabase;
     private Vector3Int lastPosition;
     private bool randomizingObjects;
-    private int x;
-    private int y;
 
     private void Start() {
 
@@ -78,13 +76,32 @@ public class GridPlacementController : MonoBehaviour {
 
         randomizingObjects = true;
 
-        for (x = -(gameManager.GetGridWidth() / 2); x < gameManager.GetGridWidth() / 2; x++) {
+        for (int x = -(gameManager.GetGridWidth() / 2); x < gameManager.GetGridWidth() / 2; x++) {
 
-            for (y = -(gameManager.GetGridHeight() / 2); y < gameManager.GetGridHeight() / 2; y++) {
+            for (int y = -(gameManager.GetGridHeight() / 2); y < gameManager.GetGridHeight() / 2; y++) {
 
-                ObjectData objData = objectDatabase.objectData[Random.Range(0, objectDatabase.objectData.Count)];
-                float probability = Random.Range(0f, 1f);
+                List<ObjectData> usableObjects = new List<ObjectData>();
+                float probability;
                 float rotation = 0f;
+
+                foreach (ObjectData data in objectDatabase.objectData) {
+
+                    probability = Random.Range(0f, 100f);
+
+                    if (probability < data.spawnProbability) {
+
+                        usableObjects.Add(data);
+
+                    }
+                }
+
+                if (usableObjects.Count == 0) {
+
+                    continue;
+
+                }
+
+                ObjectData objData = usableObjects[Random.Range(0, usableObjects.Count)];
 
                 buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
                 buildingState.UpdateState(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)));
@@ -130,10 +147,21 @@ public class GridPlacementController : MonoBehaviour {
 
                 }
 
-                while (probability >= objData.spawnProbability || !(objData.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+                bool allObjectsUsed = false;
 
-                    objData = objectDatabase.objectData[Random.Range(0, objectDatabase.objectData.Count)];
-                    probability = Random.Range(0f, 1f);
+                while (!(objData.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+
+                    usableObjects.Remove(objData);
+
+                    if (usableObjects.Count == 0) {
+
+                        buildingState.EndState();
+                        allObjectsUsed = true;
+                        break;
+
+                    }
+
+                    objData = usableObjects[Random.Range(0, usableObjects.Count)];
                     rotation = 0f;
 
                     if (buildingState != null) {
@@ -183,12 +211,15 @@ public class GridPlacementController : MonoBehaviour {
 
                 }
 
-                PlaceObject();
+                if (!allObjectsUsed) {
 
-                while (previewSystem.GetPreviewObject() != null) {
+                    PlaceObject();
 
-                    yield return null;
+                    while (previewSystem.GetPreviewObject() != null) {
 
+                        yield return null;
+
+                    }
                 }
             }
         }
