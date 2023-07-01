@@ -30,7 +30,8 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
     [SerializeField] private Button attackButton;
     [SerializeField] private Button kingdomButton;
     [SerializeField] private CanvasGroup testingHUD;
-    [SerializeField] private GameObject rollButton;
+    [SerializeField] private GameObject testBuildRollButton;
+    [SerializeField] private GameObject testAttackRollButton;
     [SerializeField] private GameObject acceptButton;
     [SerializeField] private GameObject declineButton;
 
@@ -52,8 +53,10 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
     private Coroutine loadingFadeCoroutine;
 
     [Header("Testing Mode")]
-    private RollRootObject importedRollData;
-    private RollRootObject newRollData;
+    private BuildRollRootObject importedBuildRollData;
+    private BuildRollRootObject newBuildRollData;
+    private AttackRollRootObject importedAttackRollData;
+    private AttackRollRootObject newAttackRollData;
     private List<RollData> currDiceRollData;
     private bool testingModeEnabled;
 
@@ -85,10 +88,10 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         healthSlider.maxValue = playerData.GetMaxHealth();
         UpdateHealthSlider();
 
-        buildButton.GetComponentInChildren<TMP_Text>().text = "Build x" + gameManager.GetBuildersDice();
-        buildButton.onClick.AddListener(RollBuildersDice);
+        buildButton.GetComponentInChildren<TMP_Text>().text = "Build x" + gameManager.GetBuildDiceAmount();
+        buildButton.onClick.AddListener(RollBuildDice);
 
-        attackButton.GetComponentInChildren<TMP_Text>().text = "Attack x" + gameManager.GetAttackDice();
+        attackButton.GetComponentInChildren<TMP_Text>().text = "Attack x" + gameManager.GetAttackDiceAmount();
         attackButton.onClick.AddListener(RollAttackDice);
 
         kingdomButton.onClick.AddListener(LoadKingdomScene);
@@ -102,23 +105,30 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         testingHUD.gameObject.SetActive(false);
 
-        rollButton.GetComponent<Button>().onClick.AddListener(RollTestingBuildersDice);
-        acceptButton.GetComponent<Button>().onClick.AddListener(AcceptTestingRoll);
+        testBuildRollButton.GetComponent<Button>().onClick.AddListener(RollTestingBuildDice);
+        testAttackRollButton.GetComponent<Button>().onClick.AddListener(RollTestingAttackDice);
         declineButton.GetComponent<Button>().onClick.AddListener(DeclineTestingRoll);
 
-        if (!File.Exists(gameManager.GetDiceRollFilePath())) {
+        if (!File.Exists(gameManager.GetBuildDiceRollFilePath())) {
 
-            File.Create(gameManager.GetDiceRollFilePath()).Close();
+            File.Create(gameManager.GetBuildDiceRollFilePath()).Close();
 
         }
 
-        importedRollData = new RollRootObject();
+        if (!File.Exists(gameManager.GetAttackDiceRollFilePath())) {
 
-        using (StreamReader sr = new StreamReader(gameManager.GetDiceRollFilePath())) {
+            File.Create(gameManager.GetAttackDiceRollFilePath()).Close();
+
+        }
+
+        importedBuildRollData = new BuildRollRootObject();
+        importedAttackRollData = new AttackRollRootObject();
+
+        using (StreamReader sr = new StreamReader(gameManager.GetBuildDiceRollFilePath())) {
 
             if (Application.isEditor) {
 
-                Debug.Log("File successfully opened at " + gameManager.GetDiceRollFilePath());
+                Debug.Log("File successfully opened at " + gameManager.GetBuildDiceRollFilePath());
 
             }
 
@@ -126,17 +136,40 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
                 if (Application.isEditor) {
 
-                    Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+                    Debug.LogWarning("There are no build rolls to execute! Enter developer testing mode to add some!");
 
                 }
             } else {
 
-                importedRollData = JsonConvert.DeserializeObject<RollRootObject>(sr.ReadToEnd());
+                importedBuildRollData = JsonConvert.DeserializeObject<BuildRollRootObject>(sr.ReadToEnd());
 
             }
         }
 
-        newRollData = new RollRootObject();
+        using (StreamReader sr = new StreamReader(gameManager.GetAttackDiceRollFilePath())) {
+
+            if (Application.isEditor) {
+
+                Debug.Log("File successfully opened at " + gameManager.GetAttackDiceRollFilePath());
+
+            }
+
+            if (sr.EndOfStream) {
+
+                if (Application.isEditor) {
+
+                    Debug.LogWarning("There are no attack rolls to execute! Enter developer testing mode to add some!");
+
+                }
+            } else {
+
+                importedAttackRollData = JsonConvert.DeserializeObject<AttackRollRootObject>(sr.ReadToEnd());
+
+            }
+        }
+
+        newBuildRollData = new BuildRollRootObject();
+        newAttackRollData = new AttackRollRootObject();
 
     }
 
@@ -151,20 +184,20 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void OnApplicationQuit() {
 
-        if (testingModeEnabled && (importedRollData.rollData.Count > 0 || newRollData.rollData.Count > 0)) {
+        if (testingModeEnabled && (importedBuildRollData.rollData.Count > 0 || newBuildRollData.rollData.Count > 0 || importedAttackRollData.rollData.Count > 0 || newAttackRollData.rollData.Count > 0)) {
 
             SaveRollData();
 
         }
     }
 
-    private void RollBuildersDice() {
+    private void RollBuildDice() {
 
-        if (importedRollData.rollData.Count == 0) {
+        if (importedBuildRollData.rollData.Count == 0) {
 
             if (Application.isEditor) {
 
-                Debug.LogWarning("There are no rolls to execute! Enter developer testing mode to add some!");
+                Debug.LogWarning("There are no build rolls to execute! Enter developer testing mode to add some!");
                 return;
 
             }
@@ -172,7 +205,6 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         if (gameManager.GetGameState() != GameManager.GameState.Live) {
 
-            Debug.Log("not live");
             return;
 
         }
@@ -180,24 +212,30 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        if (PhotonNetwork.IsMasterClient) {
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
-            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
-
-        }
-
-        int rollIndex = UnityEngine.Random.Range(0, importedRollData.rollData.Count);
+        int rollIndex = UnityEngine.Random.Range(0, importedBuildRollData.rollData.Count);
         DiceRotation rotation;
 
-        for (int i = 0; i < gameManager.GetBuildersDice(); i++) {
+        for (int i = 0; i < gameManager.GetBuildDiceAmount(); i++) {
 
-            rotation = importedRollData.rollData[rollIndex][i].GetDiceRotation();
-            diceRollers[importedRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollBuildersDiceRPC", RpcTarget.All, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedRollData.rollData[rollIndex][i].GetDiceVelocity());
+            rotation = importedBuildRollData.rollData[rollIndex][i].GetDiceRotation();
+            diceRollers[importedBuildRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollBuildDiceRPC", RpcTarget.All, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedBuildRollData.rollData[rollIndex][i].GetDiceVelocity());
 
         }
     }
 
     private void RollAttackDice() {
+
+        if (importedAttackRollData.rollData.Count == 0) {
+
+            if (Application.isEditor) {
+
+                Debug.LogWarning("There are no attack rolls to execute! Enter developer testing mode to add some!");
+                return;
+
+            }
+        }
 
         if (gameManager.GetGameState() != GameManager.GameState.Live) {
 
@@ -206,30 +244,17 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         }
 
         DisableRollButtons();
-
-        rollersLeft = new List<DiceRoller>();
-
-        foreach (DiceRoller roller in diceRollers) {
-
-            rollersLeft.Add(roller);
-
-        }
-
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        if (PhotonNetwork.IsMasterClient) {
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
-            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        int rollIndex = UnityEngine.Random.Range(0, importedAttackRollData.rollData.Count);
+        DiceRotation rotation;
 
-        }
+        for (int i = 0; i < gameManager.GetAttackDiceAmount(); i++) {
 
-        int randInt;
-
-        for (int i = 0; i < gameManager.GetAttackDice(); i++) {
-
-            randInt = UnityEngine.Random.Range(0, rollersLeft.Count);
-            rollersLeft[randInt].RollAttackDice();
-            rollersLeft.RemoveAt(randInt);
+            rotation = importedAttackRollData.rollData[rollIndex][i].GetDiceRotation();
+            diceRollers[importedAttackRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollAttackDiceRPC", RpcTarget.All, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedAttackRollData.rollData[rollIndex][i].GetDiceVelocity());
 
         }
     }
@@ -479,11 +504,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void ToggleTestingMode() {
 
-        if (PhotonNetwork.IsMasterClient) {
-
-            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
-
-        }
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         testingModeEnabled = !testingModeEnabled;
 
@@ -492,7 +513,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
             Debug.LogWarning("Developer testing mode enabled!");
             diceHUD.gameObject.SetActive(false);
             testingHUD.gameObject.SetActive(true);
-            rollButton.SetActive(true);
+            testBuildRollButton.SetActive(true);
             acceptButton.SetActive(false);
             declineButton.SetActive(false);
 
@@ -508,7 +529,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         }
     }
 
-    private void RollTestingBuildersDice() {
+    private void RollTestingBuildDice() {
 
         rollersLeft = new List<DiceRoller>();
 
@@ -518,26 +539,59 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         }
 
-        if (PhotonNetwork.IsMasterClient) {
-
-            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
-
-        }
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         currDiceRollData = new List<RollData>();
         int randInt;
 
-        for (int i = 0; i < gameManager.GetBuildersDice(); i++) {
+        for (int i = 0; i < gameManager.GetBuildDiceAmount(); i++) {
 
             RollData rollData = new RollData();
             randInt = UnityEngine.Random.Range(0, rollersLeft.Count);
-            rollData = rollersLeft[randInt].RollTestingBuildersDice(rollData);
+            rollData = rollersLeft[randInt].RollTestingBuildDice(rollData);
             currDiceRollData.Add(rollData);
             rollersLeft.RemoveAt(randInt);
 
         }
 
-        rollButton.SetActive(false);
+        testBuildRollButton.SetActive(false);
+        testAttackRollButton.SetActive(false);
+        acceptButton.GetComponent<Button>().onClick.AddListener(AcceptBuildTestingRoll);
+        acceptButton.GetComponent<Button>().interactable = false;
+        declineButton.GetComponent<Button>().interactable = false;
+        acceptButton.SetActive(true);
+        declineButton.SetActive(true);
+
+    }
+
+    private void RollTestingAttackDice() {
+
+        rollersLeft = new List<DiceRoller>();
+
+        foreach (DiceRoller roller in diceRollers) {
+
+            rollersLeft.Add(roller);
+
+        }
+
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        currDiceRollData = new List<RollData>();
+        int randInt;
+
+        for (int i = 0; i < gameManager.GetAttackDiceAmount(); i++) {
+
+            RollData rollData = new RollData();
+            randInt = UnityEngine.Random.Range(0, rollersLeft.Count);
+            rollData = rollersLeft[randInt].RollTestingAttackDice(rollData);
+            currDiceRollData.Add(rollData);
+            rollersLeft.RemoveAt(randInt);
+
+        }
+
+        testBuildRollButton.SetActive(false);
+        testAttackRollButton.SetActive(false);
+        acceptButton.GetComponent<Button>().onClick.AddListener(AcceptAttackTestingRoll);
         acceptButton.GetComponent<Button>().interactable = false;
         declineButton.GetComponent<Button>().interactable = false;
         acceptButton.SetActive(true);
@@ -552,50 +606,77 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    private void AcceptTestingRoll() {
+    private void AcceptBuildTestingRoll() {
 
-        newRollData.rollData.Add(currDiceRollData);
+        newBuildRollData.rollData.Add(currDiceRollData);
 
-        if (PhotonNetwork.IsMasterClient) {
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
-            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
-
-        }
-
+        acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptBuildTestingRoll);
         acceptButton.SetActive(false);
         declineButton.SetActive(false);
-        rollButton.SetActive(true);
+        testBuildRollButton.SetActive(true);
+        testAttackRollButton.SetActive(true);
+
+    }
+
+    private void AcceptAttackTestingRoll() {
+
+        newAttackRollData.rollData.Add(currDiceRollData);
+
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+
+        acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptAttackTestingRoll);
+        acceptButton.SetActive(false);
+        declineButton.SetActive(false);
+        testBuildRollButton.SetActive(true);
+        testAttackRollButton.SetActive(true);
 
     }
 
     private void DeclineTestingRoll() {
 
-        if (PhotonNetwork.IsMasterClient) {
-
-            networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
-
-        }
+        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.SetActive(false);
         declineButton.SetActive(false);
-        rollButton.SetActive(true);
+        testBuildRollButton.SetActive(true);
+        testAttackRollButton.SetActive(true);
 
     }
 
     private void SaveRollData() {
 
-        using (StreamWriter sw = new StreamWriter(gameManager.GetDiceRollFilePath())) {
+        using (StreamWriter sw = new StreamWriter(gameManager.GetBuildDiceRollFilePath())) {
 
             if (Application.isEditor) {
 
-                Debug.Log("Serializing roll data to file!");
+                Debug.Log("Serializing build roll data to file!");
 
             }
 
-            importedRollData.rollData.AddRange(newRollData.rollData);
-            newRollData.rollData.Clear();
+            importedBuildRollData.rollData.AddRange(newBuildRollData.rollData);
+            newBuildRollData.rollData.Clear();
 
-            sw.Write(JsonConvert.SerializeObject(importedRollData, Formatting.Indented, new JsonSerializerSettings {
+            sw.Write(JsonConvert.SerializeObject(importedBuildRollData, Formatting.Indented, new JsonSerializerSettings {
+
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+
+            }));
+        }
+
+        using (StreamWriter sw = new StreamWriter(gameManager.GetAttackDiceRollFilePath())) {
+
+            if (Application.isEditor) {
+
+                Debug.Log("Serializing attack roll data to file!");
+
+            }
+
+            importedAttackRollData.rollData.AddRange(newAttackRollData.rollData);
+            newAttackRollData.rollData.Clear();
+
+            sw.Write(JsonConvert.SerializeObject(importedAttackRollData, Formatting.Indented, new JsonSerializerSettings {
 
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 

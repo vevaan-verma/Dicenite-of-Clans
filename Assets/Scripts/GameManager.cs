@@ -11,11 +11,15 @@ public class GameManager : MonoBehaviour {
 
     [Header("Settings")]
     [SerializeField] private float diceStillTime;
-    [SerializeField] private int buildersDice;
-    [SerializeField] private int attackDice;
+    [SerializeField] private string diceGroundTag;
+    [SerializeField] private int buildDiceAmount;
+    [SerializeField] private int attackDiceAmount;
+    [SerializeField] private string buildDiceTag;
+    [SerializeField] private string attackDiceTag;
     [SerializeField] private int gridWidth;
     [SerializeField] private int gridHeight;
-    [SerializeField] private string diceRollFileName;
+    [SerializeField] private string buildDiceRollFileName;
+    [SerializeField] private string attackDiceRollFileName;
     [SerializeField] private int maxPlayers;
 
     public enum GameState {
@@ -55,15 +59,33 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public int GetBuildersDice() {
+    public string GetDiceGroundTag() {
 
-        return buildersDice;
+        return diceGroundTag;
 
     }
 
-    public int GetAttackDice() {
+    public int GetBuildDiceAmount() {
 
-        return attackDice;
+        return buildDiceAmount;
+
+    }
+
+    public int GetAttackDiceAmount() {
+
+        return attackDiceAmount;
+
+    }
+
+    public string GetBuildDiceTag() {
+
+        return buildDiceTag;
+
+    }
+
+    public string GetAttackDiceTag() {
+
+        return attackDiceTag;
 
     }
 
@@ -79,9 +101,15 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public string GetDiceRollFilePath() {
+    public string GetBuildDiceRollFilePath() {
 
-        return Application.persistentDataPath + Path.DirectorySeparatorChar + diceRollFileName;
+        return Application.persistentDataPath + Path.DirectorySeparatorChar + buildDiceRollFileName;
+
+    }
+
+    public string GetAttackDiceRollFilePath() {
+
+        return Application.persistentDataPath + Path.DirectorySeparatorChar + attackDiceRollFileName;
 
     }
 

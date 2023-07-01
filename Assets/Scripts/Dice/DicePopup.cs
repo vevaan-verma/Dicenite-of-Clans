@@ -3,17 +3,22 @@ using TMPro;
 
 public class DicePopup : MonoBehaviour {
 
+    [Header("References")]
+    private GameManager gameManager;
+
     [Header("Popup Colors")]
     [SerializeField] private Color buildColor;
     [SerializeField] private Color attackColor;
 
     private void Start() {
 
-        if (transform.parent.CompareTag("BuildersDice")) {
+        gameManager = FindObjectOfType<GameManager>();
+
+        if (transform.parent.CompareTag(gameManager.GetBuildDiceTag())) {
 
             GetComponent<TextMeshPro>().color = buildColor;
 
-        } else if (transform.parent.CompareTag("AttackDice")) {
+        } else if (transform.parent.CompareTag(gameManager.GetAttackDiceTag())) {
 
             GetComponent<TextMeshPro>().color = attackColor;
 

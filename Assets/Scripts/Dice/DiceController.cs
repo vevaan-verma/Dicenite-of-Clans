@@ -1,11 +1,13 @@
 using UnityEngine;
 using TMPro;
+using Photon.Pun;
 
 public class DiceController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private Transform center;
-    [HideInInspector] public DiceUIController UIController;
+    [HideInInspector] public DiceUIController diceUIController;
+    private PhotonView roller;
     private GameManager gameManager;
     private Rigidbody rb;
 
@@ -22,7 +24,7 @@ public class DiceController : MonoBehaviour {
 
     private void Start() {
 
-        UIController = FindObjectOfType<DiceUIController>();
+        diceUIController = FindObjectOfType<DiceUIController>();
         gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
 
@@ -53,6 +55,24 @@ public class DiceController : MonoBehaviour {
     public void ShowDicePopup() {
 
         Instantiate(dicePopup, new Vector3(center.position.x, center.position.y + diceRadius, center.position.z), Quaternion.Euler(90f, 0f, 0f), transform).GetComponent<TextMeshPro>().text = rollNumber + "";
+
+    }
+
+    public void SetRoller(PhotonView roller) {
+
+        this.roller = roller;
+
+    }
+
+    public PhotonView GetRoller() {
+
+        return roller;
+
+    }
+
+    public GameManager GetGameManager() {
+
+        return gameManager;
 
     }
 }

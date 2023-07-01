@@ -34,6 +34,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
             if (allReady) {
 
+                gridPlacementController = FindObjectOfType<GridPlacementController>();
+                StartCoroutine(gridPlacementController.RandomizeGridObjects());
+
                 photonView.RPC("StartGameRPC", RpcTarget.All);
 
             }

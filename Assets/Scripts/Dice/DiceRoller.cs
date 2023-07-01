@@ -6,21 +6,39 @@ public class DiceRoller : MonoBehaviourPunCallbacks {
 
     [Header("References")]
     [SerializeField] private GameObject dice;
+    private GameManager gameManager;
 
     [Header("Roll Settings")]
     [SerializeField] private float diceVelocity;
 
-    [PunRPC]
-    public void RollBuildersDiceRPC(Quaternion rotation, float diceVelocity) {
+    private void Start() {
 
-        Transform newDice = Instantiate(dice, transform.position, rotation).transform;
-
-        newDice.tag = "BuildersDice";
-        newDice.GetComponent<Rigidbody>().AddForce(newDice.forward * diceVelocity, ForceMode.VelocityChange);
+        gameManager = FindObjectOfType<GameManager>();
 
     }
 
-    public RollData RollTestingBuildersDice(RollData rollData) {
+    [PunRPC]
+    public void RollBuildDiceRPC(Quaternion rotation, float diceVelocity) {
+
+        DiceController newDice = Instantiate(dice, transform.position, rotation).GetComponent<DiceController>();
+
+        foreach (PlayerData playerData in FindObjectsOfType<PlayerData>()) {
+
+            PhotonView photonView = playerData.GetComponent<PhotonView>();
+
+            if (photonView.IsMine) {
+
+                newDice.SetRoller(photonView);
+
+            }
+        }
+
+        newDice.tag = gameManager.GetBuildDiceTag();
+        newDice.GetComponent<Rigidbody>().AddForce(newDice.transform.forward * diceVelocity, ForceMode.VelocityChange);
+
+    }
+
+    public RollData RollTestingBuildDice(RollData rollData) {
 
         int diceRollerIndex = int.Parse(name[name.Length - 1] + "");
         Quaternion rotation = Random.rotation;
@@ -31,24 +49,54 @@ public class DiceRoller : MonoBehaviourPunCallbacks {
 
         Transform newDice = Instantiate(dice, transform.position, rotation).transform;
 
-        newDice.tag = "BuildersDice";
+        newDice.tag = gameManager.GetBuildDiceTag();
         newDice.GetComponent<Rigidbody>().AddForce(newDice.forward * diceVelocity, ForceMode.VelocityChange);
 
         return rollData;
 
     }
 
-    public void RollAttackDice() {
+    [PunRPC]
+    public void RollAttackDiceRPC(Quaternion rotation, float diceVelocity) {
 
-        Transform newDice = PhotonNetwork.Instantiate(dice.name, transform.position, Random.rotation).transform;
+        DiceController newDice = Instantiate(dice, transform.position, rotation).GetComponent<DiceController>();
 
-        newDice.tag = "AttackDice";
+        foreach (PlayerData playerData in FindObjectsOfType<PlayerData>()) {
+
+            PhotonView photonView = playerData.GetComponent<PhotonView>();
+
+            if (photonView.IsMine) {
+
+                newDice.SetRoller(photonView);
+
+            }
+        }
+
+        newDice.tag = gameManager.GetAttackDiceTag();
+        newDice.GetComponent<Rigidbody>().AddForce(newDice.transform.forward * diceVelocity, ForceMode.VelocityChange);
+
+    }
+
+    public RollData RollTestingAttackDice(RollData rollData) {
+
+        int diceRollerIndex = int.Parse(name[name.Length - 1] + "");
+        Quaternion rotation = Random.rotation;
+
+        rollData.SetDiceRoller(diceRollerIndex);
+        rollData.SetDiceRotation(new DiceRotation(rotation.x, rotation.y, rotation.z, rotation.w));
+        rollData.SetDiceVelocity(diceVelocity);
+
+        Transform newDice = Instantiate(dice, transform.position, rotation).transform;
+
+        newDice.tag = gameManager.GetAttackDiceTag();
         newDice.GetComponent<Rigidbody>().AddForce(newDice.forward * diceVelocity, ForceMode.VelocityChange);
+
+        return rollData;
 
     }
 }
 
-public class RollRootObject {
+public class BuildRollRootObject {
 
     public List<List<RollData>> rollData {
 
@@ -56,7 +104,22 @@ public class RollRootObject {
 
     }
 
-    public RollRootObject() {
+    public BuildRollRootObject() {
+
+        rollData = new List<List<RollData>>();
+
+    }
+}
+
+public class AttackRollRootObject {
+
+    public List<List<RollData>> rollData {
+
+        get; set;
+
+    }
+
+    public AttackRollRootObject() {
 
         rollData = new List<List<RollData>>();
 

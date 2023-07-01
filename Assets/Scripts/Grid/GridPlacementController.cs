@@ -255,15 +255,15 @@ public class GridPlacementController : MonoBehaviour {
 
     }
 
-    private void StopPlacement() {
+    public void StopPlacement() {
+
+        gridOverlay.gameObject.SetActive(false);
 
         if (buildingState == null) {
 
             return;
 
         }
-
-        gridOverlay.gameObject.SetActive(false);
 
         buildingState.EndState();
 

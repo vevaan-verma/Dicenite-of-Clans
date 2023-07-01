@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SlidingButton : MonoBehaviour {
 
@@ -8,6 +9,7 @@ public class SlidingButton : MonoBehaviour {
     [SerializeField] private float slideDuration;
     [SerializeField] private Transform slideTarget;
     private Vector2 slideInitialPosition;
+    private Button button;
     bool slideEnabled;
     bool slidOut;
 
@@ -29,6 +31,8 @@ public class SlidingButton : MonoBehaviour {
         trigger.triggers.Add(entry2);
 
         slideInitialPosition = transform.position;
+
+        button = GetComponent<Button>();
 
         slideEnabled = true;
 
@@ -66,6 +70,7 @@ public class SlidingButton : MonoBehaviour {
 
     public void EnableSlideIn() {
 
+        button.interactable = true;
         slideEnabled = true;
 
     }
@@ -78,6 +83,7 @@ public class SlidingButton : MonoBehaviour {
 
         }
 
+        button.interactable = false;
         slideEnabled = false;
 
     }

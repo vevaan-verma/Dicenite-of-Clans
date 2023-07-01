@@ -10,7 +10,6 @@ public class DiceSide : MonoBehaviour {
 
     private void Awake() {
 
-        playerData = FindObjectOfType<PlayerData>();
         diceController = transform.parent.GetComponent<DiceController>();
         diceUIController = FindObjectOfType<DiceUIController>();
 
@@ -20,12 +19,14 @@ public class DiceSide : MonoBehaviour {
 
         if (!diceUIController.GetTestingModeState()) {
 
-            if (diceController.diceStill && collider.CompareTag("DiceGround")) {
+            if (diceController.diceStill && collider.CompareTag(diceController.GetGameManager().GetDiceGroundTag())) {
 
-                diceController.UIController.StartFadeInDiceHUD();
+                playerData = diceController.GetRoller().GetComponent<PlayerData>();
+
+                diceController.diceUIController.StartFadeInDiceHUD();
                 diceController.rollNumber = 7 - (transform.name[transform.name.Length - 1] - '0');
 
-                if (transform.parent.CompareTag("BuildersDice")) {
+                if (transform.parent.CompareTag(diceController.GetGameManager().GetBuildDiceTag())) {
 
                     switch (diceController.rollNumber) {
 
@@ -136,13 +137,13 @@ public class DiceSide : MonoBehaviour {
 
                     }
 
-                    diceController.UIController.EnableRollButtons();
+                    diceController.diceUIController.EnableRollButtons();
 
                 }
             }
         } else {
 
-            if (diceController.diceStill && collider.CompareTag("DiceGround")) {
+            if (diceController.diceStill && collider.CompareTag(diceController.GetGameManager().GetDiceGroundTag())) {
 
                 diceController.rollNumber = 7 - (transform.name[transform.name.Length - 1] - '0');
                 diceController.diceUsed = true;

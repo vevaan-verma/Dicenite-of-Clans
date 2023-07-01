@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ public class ObjectManager : MonoBehaviour {
     public int PlaceObject(GameObject prefab, Vector3 position, Quaternion rotation) {
 
         Vector2Int size = previewSystem.GetObjectSize();
-        GameObject newObject = Instantiate(prefab, position, rotation);
+        GameObject newObject = PhotonNetwork.InstantiateRoomObject(prefab.name, position, rotation);
 
         switch (rotation.eulerAngles.y) {
 
@@ -54,7 +55,7 @@ public class ObjectManager : MonoBehaviour {
 
         }
 
-        Destroy(placedObjects[objectIndex]);
+        PhotonNetwork.Destroy(placedObjects[objectIndex]);
         placedObjects[objectIndex] = null;
 
     }
