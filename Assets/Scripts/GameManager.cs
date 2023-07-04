@@ -18,9 +18,11 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private string attackDiceTag;
     [SerializeField] private int gridWidth;
     [SerializeField] private int gridHeight;
+    [SerializeField] private float cellSize;
     [SerializeField] private string buildDiceRollFileName;
     [SerializeField] private string attackDiceRollFileName;
     [SerializeField] private int maxPlayers;
+    [SerializeField] private Vector3[] playerSpawns;
 
     public enum GameState {
 
@@ -101,6 +103,12 @@ public class GameManager : MonoBehaviour {
 
     }
 
+    public float GetCellSize() {
+
+        return cellSize;
+
+    }
+
     public string GetBuildDiceRollFilePath() {
 
         return Application.persistentDataPath + Path.DirectorySeparatorChar + buildDiceRollFileName;
@@ -116,6 +124,19 @@ public class GameManager : MonoBehaviour {
     public int GetMaxPlayers() {
 
         return maxPlayers;
+
+    }
+
+    public Vector3[] GetPlayerSpawns() {
+
+        if (playerSpawns.Length == 0) {
+
+            Debug.LogWarning("No player spawns have been set!");
+            return new Vector3[] { Vector3.zero };
+
+        }
+
+        return playerSpawns;
 
     }
 }

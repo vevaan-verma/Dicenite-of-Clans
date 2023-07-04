@@ -337,6 +337,8 @@ public class KingdomUIController : MonoBehaviour {
 
     }
 
+
+
     private IEnumerator LerpMetalCount(int startMetal, int targetMetal) {
 
         float currentTime = 0f;

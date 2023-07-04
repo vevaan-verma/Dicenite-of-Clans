@@ -48,13 +48,6 @@ public class ObjectData {
     }
 
     [field: SerializeField]
-    public bool stackable {
-
-        get; private set;
-
-    }
-
-    [field: SerializeField]
     public int price {
 
         get; private set;

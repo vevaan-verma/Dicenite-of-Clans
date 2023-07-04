@@ -24,7 +24,7 @@ public class GridData {
         }
     }
 
-    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight) {
+    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight, Vector3[] playerSpawns) {
 
         List<Vector3Int> occupiedPositions;
 
@@ -38,7 +38,27 @@ public class GridData {
 
         }
 
+        bool isSpawn;
+
         foreach (Vector3Int position in occupiedPositions) {
+
+            isSpawn = false;
+
+            foreach (Vector3 spawn in playerSpawns) {
+
+                if (position == spawn) {
+
+                    isSpawn = true;
+                    break;
+
+                }
+            }
+
+            if (isSpawn) {
+
+                return false;
+
+            }
 
             if (placedObjects.ContainsKey(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.z < -(gridHeight / 2) || position.z > gridHeight / 2 - 1) {
 

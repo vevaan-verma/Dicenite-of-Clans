@@ -68,6 +68,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a70d832712943f46a798cefaf4b6683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerPiecePrefab: {fileID: 5167218941299561423, guid: ec80403df90c0fe458f04d250933a58f,
+    type: 3}
 --- !u!114 &-194817035122973944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,3 +83,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  moveDuration: 0.3
