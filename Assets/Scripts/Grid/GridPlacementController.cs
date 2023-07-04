@@ -6,6 +6,7 @@ public class GridPlacementController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private ObjectManager objectManager;
+    [SerializeField] private GameObject moveIndicator;
     private GameManager gameManager;
     private KingdomUIController kingdomUIController;
     private AudioManager audioManager;
@@ -13,7 +14,7 @@ public class GridPlacementController : MonoBehaviour {
     private GridInputManager inputManager;
 
     [Header("Grid Data")]
-    private GridData stackableData, nonStackableData;
+    private GridData gridData;
 
     [Header("Placement Visuals")]
     [SerializeField] private Grid grid;
@@ -32,8 +33,7 @@ public class GridPlacementController : MonoBehaviour {
         inputManager = FindObjectOfType<GridInputManager>();
         audioManager = FindObjectOfType<AudioManager>();
 
-        stackableData = new GridData();
-        nonStackableData = new GridData();
+        gridData = new GridData();
 
         for (int i = 0; i < objectDatabase.objectData.Count; i++) {
 
@@ -96,7 +96,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 ObjectData objData = usableObjects[Random.Range(0, usableObjects.Count)];
 
-                buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
+                buildingState = new PlacementState(gameManager, objectManager, gridData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
                 buildingState.UpdateState(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)));
 
                 switch (Random.Range(0, 4)) {
@@ -133,7 +133,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 }
 
-                if (!(objData.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+                if (!gridData.CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
 
                     buildingState.EndState();
                     continue;
@@ -142,7 +142,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 bool allObjectsUsed = false;
 
-                while (!(objData.stackable ? stackableData : nonStackableData).CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+                while (!gridData.CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
 
                     usableObjects.Remove(objData);
 
@@ -163,7 +163,7 @@ public class GridPlacementController : MonoBehaviour {
 
                     }
 
-                    buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
+                    buildingState = new PlacementState(gameManager, objectManager, gridData, grid, previewSystem, objectDatabase, objData.ID, audioManager, false);
                     buildingState.UpdateState(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)));
 
                     switch (Random.Range(0, 4)) {
@@ -221,11 +221,76 @@ public class GridPlacementController : MonoBehaviour {
 
     }
 
+    public void CalculatePlayerMoves(NetworkManager networkManager) {
+
+        foreach (MoveIndicatorController moveIndicatorController in FindObjectsOfType<MoveIndicatorController>()) {
+
+            Destroy(moveIndicatorController.gameObject);
+
+        }
+
+        Vector3Int playerPosition = grid.WorldToCell(networkManager.GetPlayerData().GetPieceController().transform.position);
+        List<Vector3Int> validMoves = new List<Vector3Int>();
+        Vector3Int position;
+
+        for (int x = -1; x < 2; x++) {
+
+            position = playerPosition + new Vector3Int(x, 0, 1);
+
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+
+                validMoves.Add(position);
+
+            }
+        }
+
+        for (int y = 0; y > -2; y--) {
+
+            position = playerPosition + new Vector3Int(1, 0, y);
+
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+
+                validMoves.Add(position);
+
+            }
+        }
+
+        for (int x = 0; x > -2; x--) {
+
+            position = playerPosition + new Vector3Int(x, 0, -1);
+
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+
+                validMoves.Add(position);
+
+            }
+        }
+
+        for (int y = 0; y < 2; y++) {
+
+            position = playerPosition + new Vector3Int(-1, 0, y);
+
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+
+                validMoves.Add(position);
+
+            }
+        }
+
+        PlayerData playerData = networkManager.GetComponent<PlayerData>();
+
+        foreach (Vector3Int pos in validMoves) {
+
+            Instantiate(moveIndicator, pos, Quaternion.identity).GetComponent<MoveIndicatorController>().Initialize(playerData);
+
+        }
+    }
+
     public void StartPlacement(int ID) {
 
         StopPlacement();
         gridOverlay.gameObject.SetActive(true);
-        buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, ID, audioManager, true);
+        buildingState = new PlacementState(gameManager, objectManager, gridData, grid, previewSystem, objectDatabase, ID, audioManager, true);
         inputManager.OnClick += PlaceObject;
         inputManager.OnExit += StopPlacement;
 
@@ -235,7 +300,7 @@ public class GridPlacementController : MonoBehaviour {
 
         StopPlacement();
         gridOverlay.gameObject.SetActive(true);
-        buildingState = new PlacementState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, objectDatabase, ID, audioManager, true);
+        buildingState = new PlacementState(gameManager, objectManager, gridData, grid, previewSystem, objectDatabase, ID, audioManager, true);
         inputManager.OnClick += PlaceObject;
         kingdomUIController.StartFadeOutKingdomHUD(0f);
 
@@ -279,7 +344,7 @@ public class GridPlacementController : MonoBehaviour {
 
         StopPlacement();
         gridOverlay.SetActive(true);
-        buildingState = new RemovingState(gameManager, objectManager, stackableData, nonStackableData, grid, previewSystem, audioManager);
+        buildingState = new RemovingState(gameManager, objectManager, gridData, grid, previewSystem, audioManager);
         inputManager.OnClick += PlaceObject;
         inputManager.OnExit += StopPlacement;
 

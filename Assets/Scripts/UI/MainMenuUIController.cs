@@ -370,6 +370,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
         if (fadeIn) {
 
             roomNameInput.ActivateInputField();
+            roomNameInput.Select();
 
         } else {
 

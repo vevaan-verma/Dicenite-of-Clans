@@ -7,8 +7,7 @@ public class RemovingState : IBuildingState {
     private ObjectManager objectManager;
 
     [Header("Grid Data")]
-    private GridData stackableData;
-    private GridData nonStackableData;
+    private GridData gridData;
 
     [Header("Placement Visuals")]
     private Grid grid;
@@ -20,12 +19,11 @@ public class RemovingState : IBuildingState {
     [Header("Audio")]
     private AudioManager audioManager;
 
-    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData stackableData, GridData nonStackableData, Grid grid, ObjectPreviewSystem previewSystem, AudioManager audioManager) {
+    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, AudioManager audioManager) {
 
         this.gameManager = gameManager;
         this.objectManager = objectManager;
-        this.stackableData = stackableData;
-        this.nonStackableData = nonStackableData;
+        this.gridData = gridData;
         this.grid = grid;
         this.previewSystem = previewSystem;
         this.audioManager = audioManager;
@@ -46,13 +44,13 @@ public class RemovingState : IBuildingState {
         Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        if (!nonStackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+        if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
 
-            selectedData = nonStackableData;
+            selectedData = gridData;
 
-        } else if (!stackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight())) {
+        } else if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
 
-            selectedData = stackableData;
+            selectedData = gridData;
 
         }
 
@@ -88,7 +86,7 @@ public class RemovingState : IBuildingState {
         Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        return !(stackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight()) && nonStackableData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight()));
+        return !gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns());
 
     }
 

@@ -5,13 +5,15 @@ using Photon.Realtime;
 public class NetworkManager : MonoBehaviourPunCallbacks {
 
     [Header("References")]
+    [SerializeField] private GameObject playerPiecePrefab;
+    private PlayerData playerData;
     private GameManager gameManager;
     private KingdomUIController kingdomUIController;
-    private GridPlacementController gridPlacementController;
 
     private void Start() {
 
         DontDestroyOnLoad(gameObject);
+        playerData = GetComponent<PlayerData>();
         gameManager = FindObjectOfType<GameManager>();
 
     }
@@ -34,7 +36,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
             if (allReady) {
 
-                gridPlacementController = FindObjectOfType<GridPlacementController>();
+                GridPlacementController gridPlacementController = FindObjectOfType<GridPlacementController>();
                 StartCoroutine(gridPlacementController.RandomizeGridObjects());
 
                 photonView.RPC("StartGameRPC", RpcTarget.All);
@@ -51,6 +53,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
     }
 
+    public PlayerData GetPlayerData() {
+
+        return playerData;
+
+    }
+
     #region RPCs
 
     [PunRPC]
@@ -59,6 +67,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         gameManager.UpdateGameState(GameManager.GameState.Live);
         kingdomUIController = FindObjectOfType<KingdomUIController>();
         kingdomUIController.StartFadeOutLoadingScreen();
+
+        Vector3[] spawns = gameManager.GetPlayerSpawns();
+        Vector3 position = spawns[Random.Range(0, spawns.Length)];
+        GameObject newPiece = PhotonNetwork.Instantiate(playerPiecePrefab.name, position + new Vector3(0f, playerPiecePrefab.transform.localScale.y, 0f), Quaternion.identity);
+        playerData.SetPieceController(newPiece.GetComponent<PieceController>());
+        playerData.GetPieceController().Initialize(this);
+
+        GridPlacementController gridPlacementController = FindObjectOfType<GridPlacementController>();
+        gridPlacementController.CalculatePlayerMoves(this);
 
     }
 
@@ -73,4 +90,5 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     }
 
     #endregion
+
 }

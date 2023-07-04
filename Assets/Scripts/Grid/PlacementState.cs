@@ -7,8 +7,7 @@ public class PlacementState : IBuildingState {
     private ObjectManager objectManager;
 
     [Header("Grid Data")]
-    private GridData stackableData;
-    private GridData nonStackableData;
+    private GridData gridData;
 
     [Header("Placement Visuals")]
     private Grid grid;
@@ -23,12 +22,11 @@ public class PlacementState : IBuildingState {
     [Header("Audio")]
     private AudioManager audioManager;
 
-    public PlacementState(GameManager gameManager, ObjectManager objectManager, GridData stackableData, GridData nonStackableData, Grid grid, ObjectPreviewSystem previewSystem, PlaceableObjectDatabase objectDatabase, int ID, AudioManager audioManager, bool userPlacing) {
+    public PlacementState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, PlaceableObjectDatabase objectDatabase, int ID, AudioManager audioManager, bool userPlacing) {
 
         this.gameManager = gameManager;
         this.objectManager = objectManager;
-        this.stackableData = stackableData;
-        this.nonStackableData = nonStackableData;
+        this.gridData = gridData;
         this.grid = grid;
         this.previewSystem = previewSystem;
         this.objectDatabase = objectDatabase;
@@ -83,7 +81,7 @@ public class PlacementState : IBuildingState {
 
         int index = objectManager.PlaceObject(objectDatabase.objectData[selectedObjectIndex].prefab, previewSystem.GetPreviewObject().position, previewSystem.GetPreviewObject().rotation);
 
-        (objectDatabase.objectData[selectedObjectIndex].stackable ? stackableData : nonStackableData).AddObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objectDatabase.objectData[selectedObjectIndex].size, objectDatabase.objectData[selectedObjectIndex].ID, index, previewSystem.GetPreviewObject().rotation.eulerAngles.y);
+        gridData.AddObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objectDatabase.objectData[selectedObjectIndex].size, objectDatabase.objectData[selectedObjectIndex].ID, index, previewSystem.GetPreviewObject().rotation.eulerAngles.y);
 
         previewSystem.UpdatePosition(previewSystem.GetPreviewObject().position, false);
 
@@ -97,7 +95,7 @@ public class PlacementState : IBuildingState {
 
         }
 
-        return (objectDatabase.objectData[selectedObjectIndex].stackable ? stackableData : nonStackableData).CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight());
+        return gridData.CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns());
 
     }
 
