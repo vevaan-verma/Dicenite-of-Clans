@@ -13,7 +13,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     [Header("References")]
     [SerializeField] private List<DiceRoller> diceRollers;
-    private NetworkManager networkManager;
+    private PlayerController playerController;
     private GameManager gameManager;
     private PlayerData playerData;
     private List<DiceRoller> rollersLeft;
@@ -64,11 +64,11 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void Start() {
 
-        foreach (NetworkManager networkManager in FindObjectsOfType<NetworkManager>()) {
+        foreach (PlayerController playerController in FindObjectsOfType<PlayerController>()) {
 
-            if (networkManager.photonView.IsMine) {
+            if (playerController.photonView.IsMine) {
 
-                this.networkManager = networkManager;
+                this.playerController = playerController;
 
             }
         }
@@ -94,7 +94,21 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         attackButton.GetComponentInChildren<TMP_Text>().text = "Attack x" + gameManager.GetAttackDiceAmount();
         attackButton.onClick.AddListener(RollAttackDice);
 
+        if (gameManager.GetMaxPlayers() > 1) {
+
+            buildButton.interactable = false;
+            attackButton.interactable = false;
+
+        } else {
+
+            buildButton.interactable = true;
+            attackButton.interactable = true;
+
+        }
+
         kingdomButton.onClick.AddListener(LoadKingdomScene);
+
+        gameManager.OnTurnChange += ChangeTurn;
 
         UpdateHealthSlider();
         UpdateWoodCount();
@@ -191,6 +205,16 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         }
     }
 
+    private void ChangeTurn() {
+
+        if (((int) PhotonNetwork.CurrentRoom.CustomProperties["Turn"]) == playerController.photonView.OwnerActorNr) {
+
+            buildButton.interactable = true;
+            attackButton.interactable = true;
+
+        }
+    }
+
     private void RollBuildDice() {
 
         if (importedBuildRollData.rollData.Count == 0) {
@@ -212,7 +236,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         int rollIndex = UnityEngine.Random.Range(0, importedBuildRollData.rollData.Count);
         DiceRotation rotation;
@@ -246,7 +270,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         int rollIndex = UnityEngine.Random.Range(0, importedAttackRollData.rollData.Count);
         DiceRotation rotation;
@@ -504,7 +528,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void ToggleTestingMode() {
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         testingModeEnabled = !testingModeEnabled;
 
@@ -539,7 +563,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         }
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -574,7 +598,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         }
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -610,7 +634,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         newBuildRollData.rollData.Add(currDiceRollData);
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptBuildTestingRoll);
         acceptButton.SetActive(false);
@@ -624,7 +648,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         newAttackRollData.rollData.Add(currDiceRollData);
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptAttackTestingRoll);
         acceptButton.SetActive(false);
@@ -636,7 +660,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void DeclineTestingRoll() {
 
-        networkManager.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.SetActive(false);
         declineButton.SetActive(false);

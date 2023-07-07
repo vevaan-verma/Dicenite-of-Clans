@@ -9,9 +9,9 @@ public class GridPlacementController : MonoBehaviour {
     [SerializeField] private GameObject moveIndicator;
     private GameManager gameManager;
     private KingdomUIController kingdomUIController;
+    private GridInputManager inputManager;
     private AudioManager audioManager;
     private IBuildingState buildingState;
-    private GridInputManager inputManager;
 
     [Header("Grid Data")]
     private GridData gridData;
@@ -133,7 +133,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 }
 
-                if (!gridData.CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+                if (!gridData.CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
                     buildingState.EndState();
                     continue;
@@ -142,7 +142,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 bool allObjectsUsed = false;
 
-                while (!gridData.CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+                while (!gridData.CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
                     usableObjects.Remove(objData);
 
@@ -217,11 +217,12 @@ public class GridPlacementController : MonoBehaviour {
             }
         }
 
+        StopPlacement();
         randomizingObjects = false;
 
     }
 
-    public void CalculatePlayerMoves(NetworkManager networkManager) {
+    public void CalculatePlayerMoves(PieceController pieceController) {
 
         foreach (MoveIndicatorController moveIndicatorController in FindObjectsOfType<MoveIndicatorController>()) {
 
@@ -229,7 +230,7 @@ public class GridPlacementController : MonoBehaviour {
 
         }
 
-        Vector3Int playerPosition = grid.WorldToCell(networkManager.GetPlayerData().GetPieceController().transform.position);
+        Vector3Int playerPosition = grid.WorldToCell(pieceController.transform.position);
         List<Vector3Int> validMoves = new List<Vector3Int>();
         Vector3Int position;
 
@@ -237,7 +238,7 @@ public class GridPlacementController : MonoBehaviour {
 
             position = playerPosition + new Vector3Int(x, 0, 1);
 
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
                 validMoves.Add(position);
 
@@ -248,7 +249,7 @@ public class GridPlacementController : MonoBehaviour {
 
             position = playerPosition + new Vector3Int(1, 0, y);
 
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
                 validMoves.Add(position);
 
@@ -259,7 +260,7 @@ public class GridPlacementController : MonoBehaviour {
 
             position = playerPosition + new Vector3Int(x, 0, -1);
 
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
                 validMoves.Add(position);
 
@@ -270,18 +271,16 @@ public class GridPlacementController : MonoBehaviour {
 
             position = playerPosition + new Vector3Int(-1, 0, y);
 
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
                 validMoves.Add(position);
 
             }
         }
 
-        PlayerData playerData = networkManager.GetComponent<PlayerData>();
-
         foreach (Vector3Int pos in validMoves) {
 
-            Instantiate(moveIndicator, pos, Quaternion.identity).GetComponent<MoveIndicatorController>().Initialize(playerData);
+            Instantiate(moveIndicator, pos, Quaternion.identity).GetComponent<MoveIndicatorController>().Initialize(pieceController);
 
         }
     }

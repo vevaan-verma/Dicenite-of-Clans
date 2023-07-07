@@ -1,26 +1,35 @@
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Collections;
+using System.Collections.Generic;
 
-public class NetworkManager : MonoBehaviourPunCallbacks {
+public class NetworkManager : MonoBehaviour {
 
     [Header("References")]
-    [SerializeField] private GameObject playerPiecePrefab;
-    private PlayerData playerData;
     private GameManager gameManager;
-    private KingdomUIController kingdomUIController;
+    private PlayerController masterController;
+    private GridPlacementController gridPlacementController;
+    private bool readyToStart;
 
     private void Start() {
 
         DontDestroyOnLoad(gameObject);
-        playerData = GetComponent<PlayerData>();
         gameManager = FindObjectOfType<GameManager>();
 
+        foreach (PlayerController playerController in FindObjectsOfType<PlayerController>()) {
+
+            if (playerController.photonView.OwnerActorNr == PhotonNetwork.MasterClient.ActorNumber) {
+
+                masterController = playerController;
+
+            }
+        }
     }
 
     private void Update() {
 
-        if (PhotonNetwork.IsMasterClient && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers() && gameManager.GetGameState() == GameManager.GameState.Waiting) {
+        if (masterController.photonView.IsMine && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers() && gameManager.GetGameState() == GameManager.GameState.Waiting && !readyToStart) {
 
             bool allReady = true;
 
@@ -36,48 +45,24 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
             if (allReady) {
 
-                GridPlacementController gridPlacementController = FindObjectOfType<GridPlacementController>();
-                StartCoroutine(gridPlacementController.RandomizeGridObjects());
-
-                photonView.RPC("StartGameRPC", RpcTarget.All);
+                Debug.LogError("Enter");
+                readyToStart = true;
+                StartCoroutine(WaitForRandomizeObjects());
+                gameManager.ChooseFirstTurn();
 
             }
         }
     }
 
-    public void ReadyPlayer() {
+    private IEnumerator WaitForRandomizeObjects() {
 
-        ExitGames.Client.Photon.Hashtable properties = photonView.Owner.CustomProperties;
-        properties.Add("ReadyStart", true);
-        photonView.Owner.SetCustomProperties(properties);
-
-    }
-
-    public PlayerData GetPlayerData() {
-
-        return playerData;
+        gridPlacementController = FindObjectOfType<GridPlacementController>();
+        yield return StartCoroutine(gridPlacementController.RandomizeGridObjects());
+        masterController.photonView.RPC("StartGameRPC", RpcTarget.All);
 
     }
 
     #region RPCs
-
-    [PunRPC]
-    public void StartGameRPC() {
-
-        gameManager.UpdateGameState(GameManager.GameState.Live);
-        kingdomUIController = FindObjectOfType<KingdomUIController>();
-        kingdomUIController.StartFadeOutLoadingScreen();
-
-        Vector3[] spawns = gameManager.GetPlayerSpawns();
-        Vector3 position = spawns[Random.Range(0, spawns.Length)];
-        GameObject newPiece = PhotonNetwork.Instantiate(playerPiecePrefab.name, position + new Vector3(0f, playerPiecePrefab.transform.localScale.y, 0f), Quaternion.identity);
-        playerData.SetPieceController(newPiece.GetComponent<PieceController>());
-        playerData.GetPieceController().Initialize(this);
-
-        GridPlacementController gridPlacementController = FindObjectOfType<GridPlacementController>();
-        gridPlacementController.CalculatePlayerMoves(this);
-
-    }
 
     [PunRPC]
     public void ClearAllDiceRPC() {

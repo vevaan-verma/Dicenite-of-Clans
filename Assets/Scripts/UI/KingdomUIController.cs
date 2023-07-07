@@ -8,7 +8,7 @@ public class KingdomUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private PlaceableObjectDatabase placeableObjectDatabase;
-    private NetworkManager networkManager;
+    private PlayerController playerController;
     private PlayerData playerData;
 
     [Header("UI References")]
@@ -43,11 +43,11 @@ public class KingdomUIController : MonoBehaviour {
 
     private void Start() {
 
-        foreach (NetworkManager networkManager in FindObjectsOfType<NetworkManager>()) {
+        foreach (PlayerController playerController in FindObjectsOfType<PlayerController>()) {
 
-            if (networkManager.photonView.IsMine) {
+            if (playerController.photonView.IsMine) {
 
-                this.networkManager = networkManager;
+                this.playerController = playerController;
 
             }
         }
@@ -81,9 +81,9 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
-        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
+        if (!playerController.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
 
-            networkManager.ReadyPlayer();
+            playerController.ReadyPlayer();
 
         } else {
 

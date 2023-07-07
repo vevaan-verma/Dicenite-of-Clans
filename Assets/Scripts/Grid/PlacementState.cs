@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class PlacementState : IBuildingState {
@@ -95,7 +96,7 @@ public class PlacementState : IBuildingState {
 
         }
 
-        return gridData.CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns());
+        return gridData.CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid);
 
     }
 
