@@ -19,9 +19,8 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
     [SerializeField] private CanvasGroup menuHUD;
     [SerializeField] private Image loadingScreen;
     [SerializeField] private Button playButton;
-    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button optionsButton;
     [SerializeField] private Button quitButton;
-    [SerializeField] private Button testGameButton;
     [SerializeField] private TMP_Text noRoomsText;
     private TMP_Text loadingText;
 
@@ -85,17 +84,6 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
         loadingScreen.gameObject.SetActive(true);
         playButton.onClick.AddListener(OpenRoomList);
         quitButton.onClick.AddListener(QuitGame);
-
-        if (Application.isEditor) {
-
-            testGameButton.gameObject.SetActive(true);
-            testGameButton.onClick.AddListener(CreateTestGame);
-
-        } else {
-
-            testGameButton.gameObject.SetActive(false);
-
-        }
 
         closeRoomListButton.onClick.AddListener(CloseRoomList);
 
@@ -518,15 +506,6 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
     private void QuitGame() {
 
         Application.Quit();
-
-    }
-
-    private void CreateTestGame() {
-
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = gameManager.GetMaxPlayers();
-        PhotonNetwork.CreateRoom("TestGame", roomOptions);
-        StartFadeInLoadingScreen();
 
     }
 }
