@@ -1,12 +1,12 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PieceController : MonoBehaviour {
 
     [Header("References")]
     private PlayerData playerData;
-    private NetworkManager networkManager;
+    private PlayerController playerController;
+    private PieceController pieceController;
     private GridPlacementController gridPlacementController;
 
     [Header("Movement")]
@@ -15,17 +15,19 @@ public class PieceController : MonoBehaviour {
     private void Start() {
 
         gridPlacementController = FindObjectOfType<GridPlacementController>();
-
-    }
-
-    public void Initialize(NetworkManager networkManager) {
-
-        this.networkManager = networkManager;
-        playerData = networkManager.GetComponent<PlayerData>();
+        playerController = GetComponent<PlayerController>();
+        pieceController = GetComponent<PieceController>();
+        playerData = GetComponent<PlayerData>();
 
     }
 
     public void StartMovePlayer(Vector3 targetPosition) {
+
+        if (!playerController.photonView.IsMine) {
+
+            return;
+
+        }
 
         if (moveCoroutine != null) {
 
@@ -52,7 +54,7 @@ public class PieceController : MonoBehaviour {
 
         transform.position = new Vector3(targetPosition.x, startPosition.y, targetPosition.z);
         moveCoroutine = null;
-        gridPlacementController.CalculatePlayerMoves(networkManager);
+        gridPlacementController.CalculatePlayerMoves(pieceController);
 
     }
 }

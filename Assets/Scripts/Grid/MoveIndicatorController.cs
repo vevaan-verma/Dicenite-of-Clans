@@ -3,7 +3,7 @@ using UnityEngine;
 public class MoveIndicatorController : MonoBehaviour {
 
     [Header("References")]
-    private PlayerData playerData;
+    private PieceController pieceController;
     private GameManager gameManager;
     private Grid grid;
     private GridInputManager inputManager;
@@ -23,9 +23,9 @@ public class MoveIndicatorController : MonoBehaviour {
 
     }
 
-    public void Initialize(PlayerData playerData) {
+    public void Initialize(PieceController pieceController) {
 
-        this.playerData = playerData;
+        this.pieceController = pieceController;
 
     }
 
@@ -36,7 +36,7 @@ public class MoveIndicatorController : MonoBehaviour {
 
         if (gridPosition == transform.position) {
 
-            playerData.GetPieceController().StartMovePlayer(movePosition);
+            pieceController.StartMovePlayer(movePosition);
 
         }
     }

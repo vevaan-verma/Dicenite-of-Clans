@@ -17,9 +17,9 @@ public class RemovingState : IBuildingState {
     private int objectIndex = -1;
 
     [Header("Audio")]
-    private AudioManager audioManager;
+    private KingdomAudioManager audioManager;
 
-    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, AudioManager audioManager) {
+    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, KingdomAudioManager audioManager) {
 
         this.gameManager = gameManager;
         this.objectManager = objectManager;
@@ -44,11 +44,11 @@ public class RemovingState : IBuildingState {
         Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+        if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
             selectedData = gridData;
 
-        } else if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns())) {
+        } else if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
 
             selectedData = gridData;
 
@@ -56,12 +56,12 @@ public class RemovingState : IBuildingState {
 
         if (selectedData == null) {
 
-            audioManager.PlaySound(AudioManager.SoundType.Error);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
             return;
 
         } else {
 
-            audioManager.PlaySound(AudioManager.SoundType.Remove);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Remove);
 
             objectIndex = selectedData.GetRepresentationIndex(gridPosition);
 
@@ -86,7 +86,7 @@ public class RemovingState : IBuildingState {
         Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        return !gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns());
+        return !gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid);
 
     }
 

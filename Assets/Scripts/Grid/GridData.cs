@@ -24,7 +24,7 @@ public class GridData {
         }
     }
 
-    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight, Vector3[] playerSpawns) {
+    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight, List<Vector3> playerSpawns, Grid grid) {
 
         List<Vector3Int> occupiedPositions;
 
@@ -46,7 +46,7 @@ public class GridData {
 
             foreach (Vector3 spawn in playerSpawns) {
 
-                if (position == spawn) {
+                if (position == grid.WorldToCell(spawn)) {
 
                     isSpawn = true;
                     break;

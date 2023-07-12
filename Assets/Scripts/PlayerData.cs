@@ -7,7 +7,6 @@ public class PlayerData : MonoBehaviour {
     [SerializeField] private float moveDuration;
 
     [Header("Data")]
-    private PieceController pieceController;
     private int health;
     private int wood;
     private int brick;
@@ -102,18 +101,6 @@ public class PlayerData : MonoBehaviour {
     public void RemoveMetal(int metal) {
 
         this.metal -= metal;
-
-    }
-
-    public void SetPieceController(PieceController pieceController) {
-
-        this.pieceController = pieceController;
-
-    }
-
-    public PieceController GetPieceController() {
-
-        return pieceController;
 
     }
 }

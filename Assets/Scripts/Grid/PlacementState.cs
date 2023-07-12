@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class PlacementState : IBuildingState {
@@ -20,9 +21,9 @@ public class PlacementState : IBuildingState {
     private bool userPlacing;
 
     [Header("Audio")]
-    private AudioManager audioManager;
+    private KingdomAudioManager audioManager;
 
-    public PlacementState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, PlaceableObjectDatabase objectDatabase, int ID, AudioManager audioManager, bool userPlacing) {
+    public PlacementState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, PlaceableObjectDatabase objectDatabase, int ID, KingdomAudioManager audioManager, bool userPlacing) {
 
         this.gameManager = gameManager;
         this.objectManager = objectManager;
@@ -40,7 +41,7 @@ public class PlacementState : IBuildingState {
 
             if (userPlacing) {
 
-                audioManager.PlaySound(AudioManager.SoundType.Click);
+                audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Click);
 
             }
 
@@ -50,7 +51,7 @@ public class PlacementState : IBuildingState {
 
             if (userPlacing) {
 
-                audioManager.PlaySound(AudioManager.SoundType.Error);
+                audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
 
             }
 
@@ -65,7 +66,7 @@ public class PlacementState : IBuildingState {
 
             if (userPlacing) {
 
-                audioManager.PlaySound(AudioManager.SoundType.Error);
+                audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
 
             }
 
@@ -75,7 +76,7 @@ public class PlacementState : IBuildingState {
 
         if (userPlacing) {
 
-            audioManager.PlaySound(AudioManager.SoundType.Place);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Place);
 
         }
 
@@ -95,7 +96,7 @@ public class PlacementState : IBuildingState {
 
         }
 
-        return gridData.CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns());
+        return gridData.CanPlaceObjectAt(gridPosition, objectDatabase.objectData[selectedObjectIndex].size, previewSystem.GetPreviewObject().rotation.eulerAngles.y, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid);
 
     }
 

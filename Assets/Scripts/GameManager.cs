@@ -1,5 +1,6 @@
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -22,7 +23,9 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private string buildDiceRollFileName;
     [SerializeField] private string attackDiceRollFileName;
     [SerializeField] private int maxPlayers;
-    [SerializeField] private Vector3[] playerSpawns;
+    [SerializeField] private List<Vector3> playerSpawns;
+
+    public event Action OnTurnChange;
 
     public enum GameState {
 
@@ -41,6 +44,40 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
         gameState = GameState.None;
 
+    }
+
+    public void ChooseFirstTurn() {
+
+        if (PhotonNetwork.CurrentRoom.MaxPlayers > 1 && PhotonNetwork.IsMasterClient) {
+
+            Room currRoom = PhotonNetwork.CurrentRoom;
+
+            ExitGames.Client.Photon.Hashtable properties = currRoom.CustomProperties;
+            Debug.Log(properties["Turn"]);
+            properties.Add("Turn", PhotonNetwork.PlayerList[UnityEngine.Random.Range(0, currRoom.PlayerCount)].ActorNumber);
+            currRoom.SetCustomProperties(properties);
+
+            OnTurnChange?.Invoke();
+
+        }
+    }
+
+    public void ChangeTurn() {
+
+        if (PhotonNetwork.CurrentRoom.MaxPlayers > 1 && PhotonNetwork.IsMasterClient) {
+
+            Room currRoom = PhotonNetwork.CurrentRoom;
+
+            ExitGames.Client.Photon.Hashtable properties = currRoom.CustomProperties;
+            Player player = currRoom.GetPlayer((int) currRoom.CustomProperties["Turn"]);
+
+            properties.Remove("Turn");
+            properties.Add("Turn", player.GetNext().ActorNumber);
+            currRoom.SetCustomProperties(properties);
+
+            OnTurnChange?.Invoke();
+
+        }
     }
 
     public void UpdateGameState(GameState state) {
@@ -127,12 +164,12 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public Vector3[] GetPlayerSpawns() {
+    public List<Vector3> GetPlayerSpawns() {
 
-        if (playerSpawns.Length == 0) {
+        if (playerSpawns.Count == 0) {
 
             Debug.LogWarning("No player spawns have been set!");
-            return new Vector3[] { Vector3.zero };
+            return new List<Vector3> { Vector3.zero };
 
         }
 

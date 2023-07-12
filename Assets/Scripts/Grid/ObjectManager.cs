@@ -16,6 +16,7 @@ public class ObjectManager : MonoBehaviour {
 
     }
 
+    [PunRPC]
     public int PlaceObject(GameObject prefab, Vector3 position, Quaternion rotation) {
 
         Vector2Int size = previewSystem.GetObjectSize();

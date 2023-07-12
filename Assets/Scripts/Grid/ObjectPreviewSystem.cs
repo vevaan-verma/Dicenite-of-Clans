@@ -4,7 +4,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private GameObject cellIndicator;
-    private AudioManager audioManager;
+    private KingdomAudioManager audioManager;
     private Transform cellIndicatorChild;
     private GridInputManager inputManager;
     private Renderer cellIndicatorRenderer;
@@ -32,7 +32,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
         inputManager = FindObjectOfType<GridInputManager>();
         cellIndicatorRenderer = cellIndicator.GetComponentInChildren<Renderer>();
-        audioManager = FindObjectOfType<AudioManager>();
+        audioManager = FindObjectOfType<KingdomAudioManager>();
 
         newPreviewMaterial = new Material(previewMaterial);
         cellIndicator.SetActive(false);
@@ -232,7 +232,7 @@ public class ObjectPreviewSystem : MonoBehaviour {
 
         if (userPlacing) {
 
-            audioManager.PlaySound(AudioManager.SoundType.Rotate);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Rotate);
 
         }
 

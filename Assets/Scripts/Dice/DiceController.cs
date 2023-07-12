@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using Photon.Pun;
+using System;
 
 public class DiceController : MonoBehaviour {
 
