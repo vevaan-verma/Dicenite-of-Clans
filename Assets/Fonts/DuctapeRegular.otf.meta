@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1f7b0776474a792468f827329fcc743e
+guid: 4e98fd1d97873b14692a8557ae1e44f4
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Crom
+  - Ductape
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

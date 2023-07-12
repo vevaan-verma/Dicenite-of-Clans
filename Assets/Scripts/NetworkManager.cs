@@ -2,7 +2,6 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
-using System.Collections.Generic;
 
 public class NetworkManager : MonoBehaviour {
 
@@ -29,7 +28,7 @@ public class NetworkManager : MonoBehaviour {
 
     private void Update() {
 
-        if (masterController.photonView.IsMine && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers() && gameManager.GetGameState() == GameManager.GameState.Waiting && !readyToStart) {
+        if (PhotonNetwork.IsMasterClient && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers() && gameManager.GetGameState() == GameManager.GameState.Waiting && !readyToStart) {
 
             bool allReady = true;
 

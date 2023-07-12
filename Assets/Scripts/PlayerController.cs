@@ -28,20 +28,17 @@ public class PlayerController : MonoBehaviourPun {
     [PunRPC]
     public void StartGameRPC() {
 
-        if (photonView.IsMine) {
+        gameManager.UpdateGameState(GameManager.GameState.Live);
+        kingdomUIController = FindObjectOfType<KingdomUIController>();
+        kingdomUIController.StartFadeOutLoadingScreen();
 
-            gameManager.UpdateGameState(GameManager.GameState.Live);
-            kingdomUIController = FindObjectOfType<KingdomUIController>();
-            kingdomUIController.StartFadeOutLoadingScreen();
+        List<Vector3> spawns = gameManager.GetPlayerSpawns();
+        Vector3 position = spawns[Random.Range(0, spawns.Count)];
+        pieceController = gameObject.AddComponent<PieceController>();
+        transform.position = position + new Vector3(0f, transform.localScale.y, 0f);
 
-            List<Vector3> spawns = gameManager.GetPlayerSpawns();
-            Vector3 position = spawns[Random.Range(0, spawns.Count)];
-            pieceController = gameObject.AddComponent<PieceController>();
-            transform.position = position + new Vector3(0f, transform.localScale.y, 0f);
+        gridPlacementController = FindObjectOfType<GridPlacementController>();
+        gridPlacementController.CalculatePlayerMoves(pieceController);
 
-            gridPlacementController = FindObjectOfType<GridPlacementController>();
-            gridPlacementController.CalculatePlayerMoves(pieceController);
-
-        }
     }
 }

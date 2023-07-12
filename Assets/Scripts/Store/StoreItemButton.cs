@@ -8,7 +8,7 @@ public class StoreItemButton : MonoBehaviour {
     private PlayerData playerData;
     private GridPlacementController gridPlacementController;
     private KingdomUIController kingdomUIController;
-    private AudioManager audioManager;
+    private KingdomAudioManager audioManager;
 
     [Header("UI References")]
     [SerializeField] private Image itemIcon;
@@ -32,7 +32,7 @@ public class StoreItemButton : MonoBehaviour {
         playerData = FindObjectOfType<PlayerData>();
         gridPlacementController = FindObjectOfType<GridPlacementController>();
         kingdomUIController = FindObjectOfType<KingdomUIController>();
-        audioManager = FindObjectOfType<AudioManager>();
+        audioManager = FindObjectOfType<KingdomAudioManager>();
 
         buyButton.onClick.AddListener(BuyItem);
 
@@ -73,7 +73,7 @@ public class StoreItemButton : MonoBehaviour {
             if (playerData.GetWoodCount() >= objectData.price) {
 
                 playerData.RemoveWood(objectData.price);
-                audioManager.PlaySound(AudioManager.SoundType.Buy);
+                audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Buy);
                 kingdomUIController.UpdateWoodCount();
                 kingdomUIController.CloseStoreHUD();
                 gridPlacementController.StartForcedPlacement(objectData.ID);
@@ -81,7 +81,7 @@ public class StoreItemButton : MonoBehaviour {
 
             }
 
-            audioManager.PlaySound(AudioManager.SoundType.Error);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
             break;
 
             case GameManager.MaterialType.Brick:
@@ -89,7 +89,7 @@ public class StoreItemButton : MonoBehaviour {
             if (playerData.GetBrickCount() >= objectData.price) {
 
                 playerData.RemoveBrick(objectData.price);
-                audioManager.PlaySound(AudioManager.SoundType.Buy);
+                audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Buy);
                 kingdomUIController.UpdateBrickCount();
                 kingdomUIController.CloseStoreHUD();
                 gridPlacementController.StartForcedPlacement(objectData.ID);
@@ -97,7 +97,7 @@ public class StoreItemButton : MonoBehaviour {
 
             }
 
-            audioManager.PlaySound(AudioManager.SoundType.Error);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
             break;
 
             case GameManager.MaterialType.Metal:
@@ -105,7 +105,7 @@ public class StoreItemButton : MonoBehaviour {
             if (playerData.GetMetalCount() >= objectData.price) {
 
                 playerData.RemoveMetal(objectData.price);
-                audioManager.PlaySound(AudioManager.SoundType.Buy);
+                audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Buy);
                 kingdomUIController.UpdateMetalCount();
                 kingdomUIController.CloseStoreHUD();
                 gridPlacementController.StartForcedPlacement(objectData.ID);
@@ -113,7 +113,7 @@ public class StoreItemButton : MonoBehaviour {
 
             }
 
-            audioManager.PlaySound(AudioManager.SoundType.Error);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
             break;
 
         }

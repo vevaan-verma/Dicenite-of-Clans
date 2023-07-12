@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2a5def96179d3184aac499624d0eed96
+guid: 3c8495beaaac18c4796f8798b773fd81
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - BlackChancery
+  - HACKED
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

@@ -17,9 +17,9 @@ public class RemovingState : IBuildingState {
     private int objectIndex = -1;
 
     [Header("Audio")]
-    private AudioManager audioManager;
+    private KingdomAudioManager audioManager;
 
-    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, AudioManager audioManager) {
+    public RemovingState(GameManager gameManager, ObjectManager objectManager, GridData gridData, Grid grid, ObjectPreviewSystem previewSystem, KingdomAudioManager audioManager) {
 
         this.gameManager = gameManager;
         this.objectManager = objectManager;
@@ -56,12 +56,12 @@ public class RemovingState : IBuildingState {
 
         if (selectedData == null) {
 
-            audioManager.PlaySound(AudioManager.SoundType.Error);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Error);
             return;
 
         } else {
 
-            audioManager.PlaySound(AudioManager.SoundType.Remove);
+            audioManager.PlaySound(KingdomAudioManager.KingdomSoundType.Remove);
 
             objectIndex = selectedData.GetRepresentationIndex(gridPosition);
 

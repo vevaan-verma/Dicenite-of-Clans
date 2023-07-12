@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour {
+public class KingdomAudioManager : MonoBehaviour {
 
     [Header("References")]
-    [SerializeField] private AudioSource audioSource;
+    private AudioSource audioSource;
 
     [Header("Audio Clips")]
     [SerializeField] private AudioClip clickSound;
@@ -15,47 +13,54 @@ public class AudioManager : MonoBehaviour {
     [SerializeField] private AudioClip errorSound;
     [SerializeField] private AudioClip buySound;
 
-    public enum SoundType {
+    public enum KingdomSoundType {
 
         Click, Place, Rotate, Remove, Error, Buy
 
     }
 
-    public void PlaySound(SoundType soundType) {
+    private void Start() {
+
+        audioSource = GetComponent<AudioSource>();
+
+    }
+
+    public void PlaySound(KingdomSoundType soundType) {
 
         switch (soundType) {
 
-            case SoundType.Click:
+            case KingdomSoundType.Click:
 
             audioSource.PlayOneShot(clickSound);
             break;
 
-            case SoundType.Place:
+            case KingdomSoundType.Place:
 
             audioSource.PlayOneShot(placeSound);
             break;
 
-            case SoundType.Rotate:
+            case KingdomSoundType.Rotate:
 
             audioSource.PlayOneShot(rotateSound);
             break;
 
-            case SoundType.Remove:
+            case KingdomSoundType.Remove:
 
             audioSource.PlayOneShot(removeSound);
             break;
 
-            case SoundType.Error:
+            case KingdomSoundType.Error:
 
             audioSource.PlayOneShot(errorSound);
             break;
 
-            case SoundType.Buy:
+            case KingdomSoundType.Buy:
 
             audioSource.PlayOneShot(buySound);
             break;
 
             default:
+
             break;
 
         }

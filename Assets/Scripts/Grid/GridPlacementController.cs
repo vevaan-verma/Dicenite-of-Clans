@@ -10,7 +10,7 @@ public class GridPlacementController : MonoBehaviour {
     private GameManager gameManager;
     private KingdomUIController kingdomUIController;
     private GridInputManager inputManager;
-    private AudioManager audioManager;
+    private KingdomAudioManager audioManager;
     private IBuildingState buildingState;
 
     [Header("Grid Data")]
@@ -31,7 +31,7 @@ public class GridPlacementController : MonoBehaviour {
         gameManager = FindObjectOfType<GameManager>();
         kingdomUIController = FindObjectOfType<KingdomUIController>();
         inputManager = FindObjectOfType<GridInputManager>();
-        audioManager = FindObjectOfType<AudioManager>();
+        audioManager = FindObjectOfType<KingdomAudioManager>();
 
         gridData = new GridData();
 

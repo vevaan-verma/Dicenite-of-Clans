@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TextButton : MonoBehaviour {
+public class HoverTextButton : MonoBehaviour {
 
     [Header("UI References")]
     private Button button;
