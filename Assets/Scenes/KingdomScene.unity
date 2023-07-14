@@ -1818,6 +1818,8 @@ MonoBehaviour:
   objectManager: {fileID: 1029759840}
   moveIndicator: {fileID: 6386897711482122776, guid: a70b2111103585840a710eacdb1cf975,
     type: 3}
+  gridDataPrefab: {fileID: 187860085331096091, guid: 89eb411a16eb6e64dbff0f1067137641,
+    type: 3}
   grid: {fileID: 1880452072}
   gridOverlay: {fileID: 1590452989}
   previewSystem: {fileID: 797447289}

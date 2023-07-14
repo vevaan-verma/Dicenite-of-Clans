@@ -9,11 +9,11 @@ using System.IO;
 using Newtonsoft.Json;
 using Photon.Pun;
 
-public class DiceUIController : MonoBehaviourPunCallbacks {
+public class DiceUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private List<DiceRoller> diceRollers;
-    private PlayerController playerController;
+    private PhotonView photonView;
     private GameManager gameManager;
     private PlayerData playerData;
     private List<DiceRoller> rollersLeft;
@@ -64,11 +64,11 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void Start() {
 
-        foreach (PlayerController playerController in FindObjectsOfType<PlayerController>()) {
+        foreach (NetworkManager networkManager in FindObjectsOfType<NetworkManager>()) {
 
-            if (playerController.photonView.IsMine) {
+            if (networkManager.photonView.IsMine) {
 
-                this.playerController = playerController;
+                photonView = networkManager.photonView;
 
             }
         }
@@ -207,7 +207,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void ChangeTurn() {
 
-        if (((int) PhotonNetwork.CurrentRoom.CustomProperties["Turn"]) == playerController.photonView.OwnerActorNr) {
+        if (((int) PhotonNetwork.CurrentRoom.CustomProperties["Turn"]) == photonView.OwnerActorNr) {
 
             buildButton.interactable = true;
             attackButton.interactable = true;
@@ -236,7 +236,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         int rollIndex = UnityEngine.Random.Range(0, importedBuildRollData.rollData.Count);
         DiceRotation rotation;
@@ -270,7 +270,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         int rollIndex = UnityEngine.Random.Range(0, importedAttackRollData.rollData.Count);
         DiceRotation rotation;
@@ -528,7 +528,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void ToggleTestingMode() {
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         testingModeEnabled = !testingModeEnabled;
 
@@ -563,7 +563,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         }
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -598,7 +598,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         }
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -634,7 +634,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         newBuildRollData.rollData.Add(currDiceRollData);
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptBuildTestingRoll);
         acceptButton.SetActive(false);
@@ -648,7 +648,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
         newAttackRollData.rollData.Add(currDiceRollData);
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptAttackTestingRoll);
         acceptButton.SetActive(false);
@@ -660,7 +660,7 @@ public class DiceUIController : MonoBehaviourPunCallbacks {
 
     private void DeclineTestingRoll() {
 
-        playerController.photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
 
         acceptButton.SetActive(false);
         declineButton.SetActive(false);

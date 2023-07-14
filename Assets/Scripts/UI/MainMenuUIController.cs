@@ -279,7 +279,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     private void RandomizeSkybox() {
 
-        int daytime = UnityEngine.Random.Range(0, nightSkyboxOdds);
+        int daytime = Random.Range(0, nightSkyboxOdds);
 
         if (daytime == nightSkyboxOdds) {
 
@@ -364,19 +364,12 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     public override void OnJoinedRoom() {
 
-        GameObject newPlayer = PhotonNetwork.Instantiate(playerPrefab.name, Vector3.zero, Quaternion.identity);
-        newPlayer.name = "Player " + newPlayer.GetComponent<PhotonView>().CreatorActorNr;
-        DontDestroyOnLoad(newPlayer);
-
-        if (PhotonNetwork.IsMasterClient) {
-
-            PhotonNetwork.Instantiate(networkManagerPrefab.name, Vector3.zero, Quaternion.identity);
-
-        }
-
+        DontDestroyOnLoad(PhotonNetwork.Instantiate(playerPrefab.name, Vector3.zero, Quaternion.identity));
         gameManager.UpdateGameState(GameManager.GameState.Waiting);
 
         if (PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers()) {
+
+            SetLoadingText("Loading Game...");
 
             if (PhotonNetwork.IsMasterClient) {
 

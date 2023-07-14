@@ -3,14 +3,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.Rendering;
 
 public class KingdomUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private PlaceableObjectDatabase placeableObjectDatabase;
     [SerializeField] private Material waterMaterial;
-    private PlayerController playerController;
+    private NetworkManager networkManager;
     private PlayerData playerData;
 
     [Header("UI References")]
@@ -45,11 +44,11 @@ public class KingdomUIController : MonoBehaviour {
 
     private void Start() {
 
-        foreach (PlayerController playerController in FindObjectsOfType<PlayerController>()) {
+        foreach (NetworkManager networkManager in FindObjectsOfType<NetworkManager>()) {
 
-            if (playerController.photonView.IsMine) {
+            if (networkManager.photonView.IsMine) {
 
-                this.playerController = playerController;
+                this.networkManager = networkManager;
 
             }
         }
@@ -83,9 +82,9 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
-        if (!playerController.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
+        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
 
-            playerController.ReadyPlayer();
+            networkManager.ReadyPlayer();
 
         } else {
 

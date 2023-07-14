@@ -1,11 +1,11 @@
+using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
-public class PieceController : MonoBehaviour {
+public class PieceController : MonoBehaviourPun {
 
     [Header("References")]
     private PlayerData playerData;
-    private PlayerController playerController;
     private PieceController pieceController;
     private GridPlacementController gridPlacementController;
 
@@ -15,7 +15,6 @@ public class PieceController : MonoBehaviour {
     private void Start() {
 
         gridPlacementController = FindObjectOfType<GridPlacementController>();
-        playerController = GetComponent<PlayerController>();
         pieceController = GetComponent<PieceController>();
         playerData = GetComponent<PlayerData>();
 
@@ -23,7 +22,7 @@ public class PieceController : MonoBehaviour {
 
     public void StartMovePlayer(Vector3 targetPosition) {
 
-        if (!playerController.photonView.IsMine) {
+        if (!photonView.IsMine) {
 
             return;
 
