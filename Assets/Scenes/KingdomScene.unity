@@ -650,6 +650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   placeableObjectDatabase: {fileID: 11400000, guid: ccdb60391dc3bb44d8576c1140a1e2db,
     type: 2}
+  waterMaterial: {fileID: 2100000, guid: 19ac4fcfcf42b4344a6c7d97a5cd61fc, type: 2}
   kingdomHUD: {fileID: 1386529642}
   loadingScreen: {fileID: 589143762}
   storeButton: {fileID: 617580792}
@@ -2837,7 +2838,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fac7a2cfebaa71848bb98516254e90eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 1356822138}
   clickSound: {fileID: 8300000, guid: 71af6d3363aea824db72d2b38b8f484f, type: 3}
   placeSound: {fileID: 8300000, guid: 9987f456a6216b24b81c1efac5119f63, type: 3}
   rotateSound: {fileID: 8300000, guid: 7a9f45a2b539e884da9df95ee0a3a938, type: 3}
@@ -2988,7 +2988,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 19ac4fcfcf42b4344a6c7d97a5cd61fc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3027,7 +3027,7 @@ Transform:
   m_GameObject: {fileID: 1505881820}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.75, z: 0}
-  m_LocalScale: {x: 50, y: 1, z: 50}
+  m_LocalScale: {x: 2.6, y: 1, z: 1.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

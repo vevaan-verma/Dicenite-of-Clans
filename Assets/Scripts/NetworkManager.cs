@@ -3,7 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 
-public class NetworkManager : MonoBehaviour {
+public class NetworkManager : MonoBehaviourPun {
 
     [Header("References")]
     private GameManager gameManager;
@@ -60,19 +60,4 @@ public class NetworkManager : MonoBehaviour {
         masterController.photonView.RPC("StartGameRPC", RpcTarget.All);
 
     }
-
-    #region RPCs
-
-    [PunRPC]
-    public void ClearAllDiceRPC() {
-
-        foreach (DiceController diceController in FindObjectsOfType<DiceController>()) {
-
-            Destroy(diceController.gameObject);
-
-        }
-    }
-
-    #endregion
-
 }

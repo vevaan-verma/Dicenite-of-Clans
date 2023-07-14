@@ -3,11 +3,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Rendering;
 
 public class KingdomUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private PlaceableObjectDatabase placeableObjectDatabase;
+    [SerializeField] private Material waterMaterial;
     private PlayerController playerController;
     private PlayerData playerData;
 
@@ -90,6 +92,9 @@ public class KingdomUIController : MonoBehaviour {
             StartFadeOutLoadingScreen();
 
         }
+
+        waterMaterial.EnableKeyword("_SHADERACTIVE");
+
     }
 
     private void LoadDiceScene() {

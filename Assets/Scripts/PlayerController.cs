@@ -28,17 +28,44 @@ public class PlayerController : MonoBehaviourPun {
     [PunRPC]
     public void StartGameRPC() {
 
-        gameManager.UpdateGameState(GameManager.GameState.Live);
-        kingdomUIController = FindObjectOfType<KingdomUIController>();
-        kingdomUIController.StartFadeOutLoadingScreen();
+        int actorNum = PhotonNetwork.LocalPlayer.ActorNumber;
+        PhotonView view = null;
 
-        List<Vector3> spawns = gameManager.GetPlayerSpawns();
-        Vector3 position = spawns[Random.Range(0, spawns.Count)];
-        pieceController = gameObject.AddComponent<PieceController>();
-        transform.position = position + new Vector3(0f, transform.localScale.y, 0f);
+        for (int viewID = actorNum * PhotonNetwork.MAX_VIEW_IDS + 1; viewID < (actorNum + 1) * PhotonNetwork.MAX_VIEW_IDS; viewID++) {
 
-        gridPlacementController = FindObjectOfType<GridPlacementController>();
-        gridPlacementController.CalculatePlayerMoves(pieceController);
+            view = PhotonView.Find(viewID);
 
+            if (view && view.IsMine) {
+
+                break;
+
+            }
+        }
+
+        if (view.IsMine) {
+
+            gameManager.UpdateGameState(GameManager.GameState.Live);
+            kingdomUIController = FindObjectOfType<KingdomUIController>();
+            kingdomUIController.StartFadeOutLoadingScreen();
+
+            List<Vector3> spawns = gameManager.GetPlayerSpawns();
+            Vector3 position = spawns[Random.Range(0, spawns.Count)];
+            pieceController = view.gameObject.AddComponent<PieceController>();
+            view.transform.position = position + new Vector3(0f, view.transform.localScale.y, 0f);
+
+            gridPlacementController = FindObjectOfType<GridPlacementController>();
+            gridPlacementController.CalculatePlayerMoves(pieceController);
+
+        }
+    }
+
+    [PunRPC]
+    public void ClearAllDiceRPC() {
+
+        foreach (DiceController diceController in FindObjectsOfType<DiceController>()) {
+
+            Destroy(diceController.gameObject);
+
+        }
     }
 }
