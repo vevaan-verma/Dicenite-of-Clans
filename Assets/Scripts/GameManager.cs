@@ -1,3 +1,4 @@
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
@@ -52,7 +53,7 @@ public class GameManager : MonoBehaviour {
 
             Room currRoom = PhotonNetwork.CurrentRoom;
 
-            ExitGames.Client.Photon.Hashtable properties = currRoom.CustomProperties;
+            Hashtable properties = currRoom.CustomProperties;
             Debug.Log(properties["Turn"]);
             properties.Add("Turn", PhotonNetwork.PlayerList[UnityEngine.Random.Range(0, currRoom.PlayerCount)].ActorNumber);
             currRoom.SetCustomProperties(properties);

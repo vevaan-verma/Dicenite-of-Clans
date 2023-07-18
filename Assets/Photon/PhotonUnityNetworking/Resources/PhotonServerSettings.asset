@@ -48,6 +48,10 @@ MonoBehaviour:
   - RollBuildDiceRPC
   - RollAttackDiceRPC
   - PlaceObject
+  - UpdateGridData
+  - CalculatePlayerMovesRPC
+  - UpdatePlayerPositionsRPC
+  - SyncGridData
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

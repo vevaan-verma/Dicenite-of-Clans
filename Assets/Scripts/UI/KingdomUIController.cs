@@ -8,7 +8,6 @@ public class KingdomUIController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private PlaceableObjectDatabase placeableObjectDatabase;
-    [SerializeField] private Material waterMaterial;
     private NetworkManager networkManager;
     private PlayerData playerData;
 
@@ -91,9 +90,6 @@ public class KingdomUIController : MonoBehaviour {
             StartFadeOutLoadingScreen();
 
         }
-
-        waterMaterial.EnableKeyword("_SHADERACTIVE");
-
     }
 
     private void LoadDiceScene() {

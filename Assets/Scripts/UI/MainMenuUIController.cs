@@ -12,7 +12,6 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
     [Header("References")]
     [SerializeField] private PhotonView playerPrefab;
     [SerializeField] private NetworkManager networkManagerPrefab;
-    [SerializeField] private Material waterMaterial;
     private MainMenuAudioManager mainMenuAudioManager;
     private GameManager gameManager;
 
@@ -161,8 +160,6 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
         }
 
         PhotonNetwork.AutomaticallySyncScene = true;
-
-        waterMaterial.EnableKeyword("_SHADERACTIVE");
 
     }
 
@@ -374,6 +371,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
             if (PhotonNetwork.IsMasterClient) {
 
                 PhotonNetwork.LoadLevel(nextSceneName);
+                loadingScreen.gameObject.SetActive(true);
 
             }
         } else {
