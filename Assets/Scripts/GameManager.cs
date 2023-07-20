@@ -26,11 +26,9 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private int maxPlayers;
     [SerializeField] private List<Vector3> playerSpawns;
 
-    public event Action OnTurnChange;
-
     public enum GameState {
 
-        None, Waiting, Live
+        None, Waiting, Setup, Live
 
     }
 
@@ -47,23 +45,22 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public void ChooseFirstTurn() {
+    public void ChooseFirstTurn(PhotonView masterView) {
 
-        if (PhotonNetwork.CurrentRoom.MaxPlayers > 1 && PhotonNetwork.IsMasterClient) {
+        if (PhotonNetwork.CurrentRoom.MaxPlayers > 1) {
 
             Room currRoom = PhotonNetwork.CurrentRoom;
 
             Hashtable properties = currRoom.CustomProperties;
-            Debug.Log(properties["Turn"]);
             properties.Add("Turn", PhotonNetwork.PlayerList[UnityEngine.Random.Range(0, currRoom.PlayerCount)].ActorNumber);
             currRoom.SetCustomProperties(properties);
 
-            OnTurnChange?.Invoke();
+            masterView.RPC("OnTurnChange", RpcTarget.All);
 
         }
     }
 
-    public void ChangeTurn() {
+    public void ChangeTurn(PhotonView photonView) {
 
         if (PhotonNetwork.CurrentRoom.MaxPlayers > 1 && PhotonNetwork.IsMasterClient) {
 
@@ -76,7 +73,16 @@ public class GameManager : MonoBehaviour {
             properties.Add("Turn", player.GetNext().ActorNumber);
             currRoom.SetCustomProperties(properties);
 
-            OnTurnChange?.Invoke();
+            photonView.RPC("OnTurnChange", RpcTarget.All);
+
+        }
+    }
+
+    public void ClearAllDice() {
+
+        foreach (DiceController diceController in FindObjectsOfType<DiceController>()) {
+
+            PhotonNetwork.Destroy(diceController.gameObject);
 
         }
     }

@@ -76,11 +76,10 @@ public class GridData : MonoBehaviourPun {
 
         if (!spawn) {
 
-            photonView.RPC("UpdatePlayerPositionsRPC", RpcTarget.Others, NetworkManager.UpdateType.Reset, text.Length, text);
+            photonView.RPC("UpdatePlayerPositions", RpcTarget.Others, NetworkManager.UpdateType.Reset, text.Length, text);
 
         }
 
-        Debug.LogError("Own Size: " + text);
         CalculatePlayerMoves();
 
     }
@@ -217,14 +216,6 @@ public class GridData : MonoBehaviourPun {
                     return false;
 
                 }
-            }
-
-            Debug.Log("Positions");
-
-            foreach (KeyValuePair<PhotonView, Vector3Int> pos in playerPositions) {
-
-                Debug.Log(pos);
-
             }
 
             if (placedObjects.ContainsKey(position) || playerPositions.ContainsValue(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.z < -(gridHeight / 2) || position.z > gridHeight / 2 - 1) {

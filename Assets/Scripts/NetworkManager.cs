@@ -3,9 +3,8 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json;
-using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class NetworkManager : MonoBehaviourPun {
 
@@ -14,11 +13,22 @@ public class NetworkManager : MonoBehaviourPun {
     private GridPlacementController gridPlacementController;
     private GridData gridData;
     private KingdomUIController kingdomUIController;
-    private bool readyToStart;
+    private bool startReady;
+    private bool countdownReady;
+
+    [Header("Scene Settings")]
+    [SerializeField] private string diceSceneName;
+    [SerializeField] private string kingdomSceneName;
 
     public enum UpdateType {
 
         Reset, Add
+
+    }
+
+    public enum PlayerProperty {
+
+        Loaded, Spawned
 
     }
 
@@ -31,24 +41,44 @@ public class NetworkManager : MonoBehaviourPun {
 
     private void Update() {
 
-        if (PhotonNetwork.IsMasterClient && photonView.IsMine && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers() && gameManager.GetGameState() == GameManager.GameState.Waiting && !readyToStart) {
+        if (PhotonNetwork.IsMasterClient && photonView.IsMine && PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers() && gameManager.GetGameState() == GameManager.GameState.Waiting && !startReady) {
 
-            bool allReady = true;
+            bool allLoaded = true;
 
             foreach (Player player in PhotonNetwork.PlayerList) {
 
-                if (player.CustomProperties["ReadyStart"] == null) {
+                if (player.CustomProperties["Loaded"] == null) {
 
-                    allReady = false;
+                    allLoaded = false;
                     break;
 
                 }
             }
 
-            if (allReady) {
+            if (allLoaded) {
 
-                readyToStart = true;
+                startReady = true;
                 StartCoroutine(WaitForRandomizeObjects());
+
+            }
+        } else if (PhotonNetwork.IsMasterClient && photonView.IsMine && gameManager.GetGameState() == GameManager.GameState.Setup && !countdownReady) {
+
+            bool allSpawned = true;
+
+            foreach (Player player in PhotonNetwork.PlayerList) {
+
+                if (player.CustomProperties["Spawned"] == null) {
+
+                    allSpawned = false;
+                    break;
+
+                }
+            }
+
+            if (allSpawned) {
+
+                countdownReady = true;
+                photonView.RPC("StartGame", RpcTarget.All);
 
             }
         }
@@ -69,20 +99,43 @@ public class NetworkManager : MonoBehaviourPun {
         }));
 
         currRoom.SetCustomProperties(properties);
-        photonView.RPC("StartGameRPC", RpcTarget.All);
+        gameManager.ChooseFirstTurn(photonView);
+        photonView.RPC("SetupGame", RpcTarget.AllViaServer);
 
     }
 
-    public void ReadyPlayer() {
+    public void SetPlayerProperty(PhotonView view, PlayerProperty playerProperty, bool status) {
 
-        ExitGames.Client.Photon.Hashtable properties = photonView.Owner.CustomProperties;
-        properties.Add("ReadyStart", true);
-        photonView.Owner.SetCustomProperties(properties);
+        if (view.IsMine) {
 
+            ExitGames.Client.Photon.Hashtable properties = view.Owner.CustomProperties;
+
+            switch (playerProperty) {
+
+                case PlayerProperty.Loaded:
+
+                properties.Add("Loaded", status);
+                break;
+
+                case PlayerProperty.Spawned:
+
+                properties.Add("Spawned", status);
+                break;
+
+                default:
+
+                Debug.LogError("Player property not specified.");
+                return;
+
+            }
+
+            view.Owner.SetCustomProperties(properties);
+
+        }
     }
 
     [PunRPC]
-    public void StartGameRPC() {
+    public void SetupGame() {
 
         int actorNum = PhotonNetwork.LocalPlayer.ActorNumber;
         PhotonView view = null;
@@ -100,9 +153,9 @@ public class NetworkManager : MonoBehaviourPun {
 
         if (view.IsMine) {
 
-            gameManager.UpdateGameState(GameManager.GameState.Live);
+            gameManager.UpdateGameState(GameManager.GameState.Setup);
             kingdomUIController = FindObjectOfType<KingdomUIController>();
-            kingdomUIController.StartFadeOutLoadingScreen();
+            kingdomUIController.CloseLoadingScreen();
 
             SpawnPlayer(view);
 
@@ -112,7 +165,7 @@ public class NetworkManager : MonoBehaviourPun {
         }
     }
 
-    private void SpawnPlayer(PhotonView photonView) {
+    private void SpawnPlayer(PhotonView view) {
 
         List<Vector3> spawns = JsonConvert.DeserializeObject<List<Vector3>>((string) PhotonNetwork.CurrentRoom.CustomProperties["Spawns"]);
         Vector3 spawnPosition = spawns[Random.Range(0, spawns.Count)];
@@ -123,7 +176,7 @@ public class NetworkManager : MonoBehaviourPun {
 
         }
 
-        gridData.MovePlayerTo(photonView, spawnPosition, true);
+        gridData.MovePlayerTo(view, spawnPosition, true);
 
         Room currRoom = PhotonNetwork.CurrentRoom;
         ExitGames.Client.Photon.Hashtable properties = currRoom.CustomProperties;
@@ -141,7 +194,30 @@ public class NetworkManager : MonoBehaviourPun {
 
         }
 
-        photonView.RPC("UpdatePlayerPositionsRPC", RpcTarget.Others, UpdateType.Add, playerPositions.Count, text);
+        view.RPC("UpdatePlayerPositions", RpcTarget.Others, UpdateType.Add, playerPositions.Count, text);
+        SetPlayerProperty(view, PlayerProperty.Spawned, true);
+
+    }
+
+    [PunRPC]
+    public IEnumerator StartGame() {
+
+        if (kingdomUIController != null) {
+
+            kingdomUIController = FindObjectOfType<KingdomUIController>();
+
+        }
+
+        for (int i = 3; i > 0; i--) {
+
+            kingdomUIController.SetCountdownText(i + "");
+            yield return new WaitForSeconds(1);
+
+        }
+
+        kingdomUIController.LoadDiceScene();
+        gameManager.UpdateGameState(GameManager.GameState.Live);
+        kingdomUIController.SetCountdownText(0 + "");
 
     }
 
@@ -169,7 +245,7 @@ public class NetworkManager : MonoBehaviourPun {
     }
 
     [PunRPC]
-    public void UpdatePlayerPositionsRPC(UpdateType updateType, int size, string[] text) {
+    public void UpdatePlayerPositions(UpdateType updateType, int size, string[] text) {
 
         int actorNum = PhotonNetwork.LocalPlayer.ActorNumber;
         PhotonView view = null;
@@ -188,7 +264,6 @@ public class NetworkManager : MonoBehaviourPun {
         if (view.IsMine) {
 
             Dictionary<PhotonView, Vector3Int> playerPositions;
-            Debug.LogError("Received Size: " + size);
 
             if (gridData == null) {
 
@@ -216,14 +291,13 @@ public class NetworkManager : MonoBehaviourPun {
             }
 
             gridData.SetPlayerPositions(playerPositions);
-            Debug.LogError("Other Size: " + playerPositions.Count);
             gridData.CalculatePlayerMoves();
 
         }
     }
 
     [PunRPC]
-    public void ClearAllDiceRPC() {
+    public void OnTurnChange() {
 
         int actorNum = PhotonNetwork.LocalPlayer.ActorNumber;
         PhotonView view = null;
@@ -241,9 +315,9 @@ public class NetworkManager : MonoBehaviourPun {
 
         if (view.IsMine) {
 
-            foreach (DiceController diceController in FindObjectsOfType<DiceController>()) {
+            if (SceneManager.GetActiveScene().name == diceSceneName) {
 
-                Destroy(diceController.gameObject);
+                FindObjectOfType<DiceUIController>().TurnChanged();
 
             }
         }

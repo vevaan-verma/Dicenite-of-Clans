@@ -18,9 +18,9 @@ public class DiceRoller : MonoBehaviourPunCallbacks {
     }
 
     [PunRPC]
-    public void RollBuildDiceRPC(Quaternion rotation, float diceVelocity) {
+    public void RollBuildDice(Quaternion rotation, float diceVelocity) {
 
-        DiceController newDice = Instantiate(dice, transform.position, rotation).GetComponent<DiceController>();
+        DiceController newDice = PhotonNetwork.Instantiate(dice.name, transform.position, rotation).GetComponent<DiceController>();
 
         foreach (PlayerData playerData in FindObjectsOfType<PlayerData>()) {
 
@@ -57,9 +57,9 @@ public class DiceRoller : MonoBehaviourPunCallbacks {
     }
 
     [PunRPC]
-    public void RollAttackDiceRPC(Quaternion rotation, float diceVelocity) {
+    public void RollAttackDice(Quaternion rotation, float diceVelocity) {
 
-        DiceController newDice = Instantiate(dice, transform.position, rotation).GetComponent<DiceController>();
+        DiceController newDice = PhotonNetwork.Instantiate(dice.name, transform.position, rotation).GetComponent<DiceController>();
 
         foreach (PlayerData playerData in FindObjectsOfType<PlayerData>()) {
 

@@ -257,7 +257,7 @@ public class GridPlacementController : MonoBehaviour {
         gridOverlay.gameObject.SetActive(true);
         buildingState = new PlacementState(gameManager, objectManager, gridData, grid, previewSystem, objectDatabase, ID, audioManager, true);
         inputManager.OnClick += PlaceObject;
-        kingdomUIController.StartFadeOutKingdomHUD(0f);
+        kingdomUIController.CloseKingdomHUD(0f);
 
     }
 
@@ -269,7 +269,7 @@ public class GridPlacementController : MonoBehaviour {
 
         }
 
-        kingdomUIController.StartFadeInKingdomHUD();
+        kingdomUIController.OpenKingdomHUD();
         buildingState.OnAction(grid.WorldToCell(previewSystem.GetPreviewObject().position));
         StopPlacement();
 

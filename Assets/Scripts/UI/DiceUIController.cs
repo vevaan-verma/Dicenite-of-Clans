@@ -18,9 +18,8 @@ public class DiceUIController : MonoBehaviour {
     private PlayerData playerData;
     private List<DiceRoller> rollersLeft;
 
-    [Header("UI References")]
+    [Header("Dice UI")]
     [SerializeField] private CanvasGroup diceHUD;
-    [SerializeField] private Image loadingScreen;
     [SerializeField] private Slider healthSlider;
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text woodText;
@@ -28,12 +27,16 @@ public class DiceUIController : MonoBehaviour {
     [SerializeField] private TMP_Text metalText;
     [SerializeField] private Button buildButton;
     [SerializeField] private Button attackButton;
-    [SerializeField] private Button kingdomButton;
+
+    [Header("Testing UI")]
     [SerializeField] private CanvasGroup testingHUD;
     [SerializeField] private GameObject testBuildRollButton;
     [SerializeField] private GameObject testAttackRollButton;
     [SerializeField] private GameObject acceptButton;
     [SerializeField] private GameObject declineButton;
+
+    [Header("Loading Screen")]
+    [SerializeField] private CanvasGroup loadingScreen;
 
     [Header("Animations")]
     [SerializeField] private float healthLerpDuration;
@@ -49,7 +52,6 @@ public class DiceUIController : MonoBehaviour {
     [Header("Scene Transitions")]
     [SerializeField] private string kingdomSceneName;
     [SerializeField] private float loadingFadeDuration;
-    [SerializeField] private float loadingFadeOpacity;
     private Coroutine loadingFadeCoroutine;
 
     [Header("Testing Mode")]
@@ -82,17 +84,18 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
-        StartFadeOutLoadingScreen();
+        CloseLoadingScreen();
 
         healthSlider.maxValue = playerData.GetMaxHealth();
         UpdateHealthSlider();
 
         buildButton.GetComponentInChildren<TMP_Text>().text = "Build x" + gameManager.GetBuildDiceAmount();
         buildButton.onClick.AddListener(RollBuildDice);
+        buildButton.interactable = false;
 
         attackButton.GetComponentInChildren<TMP_Text>().text = "Attack x" + gameManager.GetAttackDiceAmount();
         attackButton.onClick.AddListener(RollAttackDice);
+        attackButton.interactable = false;
 
         if (gameManager.GetMaxPlayers() > 1) {
 
@@ -106,9 +109,7 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        kingdomButton.onClick.AddListener(LoadKingdomScene);
-
-        gameManager.OnTurnChange += ChangeTurn;
+        TurnChanged();
 
         UpdateHealthSlider();
         UpdateWoodCount();
@@ -205,12 +206,17 @@ public class DiceUIController : MonoBehaviour {
         }
     }
 
-    private void ChangeTurn() {
+    public void TurnChanged() {
 
         if (((int) PhotonNetwork.CurrentRoom.CustomProperties["Turn"]) == photonView.OwnerActorNr) {
 
             buildButton.interactable = true;
             attackButton.interactable = true;
+
+        } else {
+
+            buildButton.interactable = false;
+            attackButton.interactable = false;
 
         }
     }
@@ -236,7 +242,7 @@ public class DiceUIController : MonoBehaviour {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         int rollIndex = UnityEngine.Random.Range(0, importedBuildRollData.rollData.Count);
         DiceRotation rotation;
@@ -244,7 +250,7 @@ public class DiceUIController : MonoBehaviour {
         for (int i = 0; i < gameManager.GetBuildDiceAmount(); i++) {
 
             rotation = importedBuildRollData.rollData[rollIndex][i].GetDiceRotation();
-            diceRollers[importedBuildRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollBuildDiceRPC", RpcTarget.All, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedBuildRollData.rollData[rollIndex][i].GetDiceVelocity());
+            diceRollers[importedBuildRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollBuildDice", RpcTarget.MasterClient, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedBuildRollData.rollData[rollIndex][i].GetDiceVelocity());
 
         }
     }
@@ -270,7 +276,7 @@ public class DiceUIController : MonoBehaviour {
         DisableRollButtons();
         StartFadeOutDiceHUD(diceHUDFadeOpacity);
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         int rollIndex = UnityEngine.Random.Range(0, importedAttackRollData.rollData.Count);
         DiceRotation rotation;
@@ -278,64 +284,16 @@ public class DiceUIController : MonoBehaviour {
         for (int i = 0; i < gameManager.GetAttackDiceAmount(); i++) {
 
             rotation = importedAttackRollData.rollData[rollIndex][i].GetDiceRotation();
-            diceRollers[importedAttackRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollAttackDiceRPC", RpcTarget.All, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedAttackRollData.rollData[rollIndex][i].GetDiceVelocity());
+            diceRollers[importedAttackRollData.rollData[rollIndex][i].GetDiceRoller()].photonView.RPC("RollAttackDice", RpcTarget.MasterClient, new Quaternion(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()), importedAttackRollData.rollData[rollIndex][i].GetDiceVelocity());
 
         }
     }
 
-    private void LoadKingdomScene() {
+    public void LoadKingdomScene() {
 
-        StartFadeOutDiceHUD(0f);
+        PhotonNetwork.LoadLevel(kingdomSceneName);
+        OpenLoadingScreen();
 
-        if (loadingFadeCoroutine != null) {
-
-            StopCoroutine(loadingFadeCoroutine);
-
-        }
-
-        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
-
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, loadingFadeOpacity), true, kingdomSceneName));
-
-    }
-
-    public void StartFadeOutLoadingScreen() {
-
-        if (loadingFadeCoroutine != null) {
-
-            StopCoroutine(loadingFadeCoroutine);
-
-        }
-
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f), false, ""));
-
-    }
-
-    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor, bool fadeIn, string sceneName) {
-
-        float currentTime = 0f;
-        loadingScreen.gameObject.SetActive(true);
-
-        while (currentTime < loadingFadeDuration) {
-
-            currentTime += Time.deltaTime;
-            loadingScreen.color = Color.Lerp(startColor, targetColor, currentTime / loadingFadeDuration);
-            yield return null;
-
-        }
-
-        loadingScreen.color = targetColor;
-        loadingFadeCoroutine = null;
-
-        if (fadeIn) {
-
-            SceneManager.LoadSceneAsync(sceneName);
-
-        } else {
-
-            loadingScreen.gameObject.SetActive(false);
-
-        }
     }
 
     public void UpdateHealthSlider() {
@@ -459,14 +417,14 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    public void EnableRollButtons() {
+    private void EnableRollButtons() {
 
         buildButton.interactable = true;
         attackButton.interactable = true;
 
     }
 
-    public void DisableRollButtons() {
+    private void DisableRollButtons() {
 
         buildButton.interactable = false;
         attackButton.interactable = false;
@@ -485,7 +443,7 @@ public class DiceUIController : MonoBehaviour {
 
     }
 
-    public void StartFadeOutDiceHUD(float targetOpacity) {
+    private void StartFadeOutDiceHUD(float targetOpacity) {
 
         if (diceHUDFadeCoroutine != null) {
 
@@ -493,7 +451,6 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        kingdomButton.GetComponent<SlidingButton>().DisableSlideIn();
         diceHUDFadeCoroutine = StartCoroutine(FadeDiceHUD(diceHUD.alpha, targetOpacity, false));
 
     }
@@ -513,9 +470,52 @@ public class DiceUIController : MonoBehaviour {
         diceHUD.alpha = targetOpacity;
         diceHUDFadeCoroutine = null;
 
-        if (fadeIn) {
+    }
 
-            kingdomButton.GetComponent<SlidingButton>().EnableSlideIn();
+    private void OpenLoadingScreen() {
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        StartFadeOutDiceHUD(0f);
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.alpha, 1f, true));
+
+    }
+
+    private void CloseLoadingScreen() {
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.alpha, 0f, false));
+
+    }
+
+    private IEnumerator FadeLoadingScreen(float startOpacity, float targetOpacity, bool fadeIn) {
+
+        float currentTime = 0f;
+        loadingScreen.gameObject.SetActive(true);
+
+        while (currentTime < loadingFadeDuration) {
+
+            currentTime += Time.deltaTime;
+            loadingScreen.alpha = Mathf.Lerp(startOpacity, targetOpacity, currentTime / loadingFadeDuration);
+            yield return null;
+
+        }
+
+        loadingScreen.alpha = targetOpacity;
+        loadingFadeCoroutine = null;
+
+        if (!fadeIn) {
+
+            loadingScreen.gameObject.SetActive(false);
 
         }
     }
@@ -528,7 +528,7 @@ public class DiceUIController : MonoBehaviour {
 
     private void ToggleTestingMode() {
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         testingModeEnabled = !testingModeEnabled;
 
@@ -563,7 +563,7 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -598,7 +598,7 @@ public class DiceUIController : MonoBehaviour {
 
         }
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         currDiceRollData = new List<RollData>();
         int randInt;
@@ -634,7 +634,7 @@ public class DiceUIController : MonoBehaviour {
 
         newBuildRollData.rollData.Add(currDiceRollData);
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptBuildTestingRoll);
         acceptButton.SetActive(false);
@@ -648,7 +648,7 @@ public class DiceUIController : MonoBehaviour {
 
         newAttackRollData.rollData.Add(currDiceRollData);
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         acceptButton.GetComponent<Button>().onClick.RemoveListener(AcceptAttackTestingRoll);
         acceptButton.SetActive(false);
@@ -660,7 +660,7 @@ public class DiceUIController : MonoBehaviour {
 
     private void DeclineTestingRoll() {
 
-        photonView.RPC("ClearAllDiceRPC", RpcTarget.All);
+        gameManager.ClearAllDice();
 
         acceptButton.SetActive(false);
         declineButton.SetActive(false);

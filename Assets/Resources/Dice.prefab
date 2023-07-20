@@ -277,6 +277,8 @@ GameObject:
   - component: {fileID: 2751313800142346439}
   - component: {fileID: 6220790417795269794}
   - component: {fileID: 5881790840588394504}
+  - component: {fileID: 3246208636850597068}
+  - component: {fileID: 3777737462966559341}
   m_Layer: 0
   m_Name: Dice
   m_TagString: Untagged
@@ -399,7 +401,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center: {fileID: 3788976639056481071}
-  UIController: {fileID: 0}
+  diceUIController: {fileID: 0}
   rollNumber: 0
   diceStill: 0
   diceStillTimer: 0
@@ -407,6 +409,45 @@ MonoBehaviour:
   dicePopup: {fileID: 3258128678492872547, guid: 1539d33e90de8f54096956b19df48a74,
     type: 3}
   diceRadius: 1
+--- !u!114 &3246208636850597068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6812922094340551078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 1
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 3777737462966559341}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &3777737462966559341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6812922094340551078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
 --- !u!1 &7926797812626524613
 GameObject:
   m_ObjectHideFlags: 0

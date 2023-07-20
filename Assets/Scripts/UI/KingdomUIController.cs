@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
 public class KingdomUIController : MonoBehaviour {
 
@@ -11,10 +12,12 @@ public class KingdomUIController : MonoBehaviour {
     private NetworkManager networkManager;
     private PlayerData playerData;
 
-    [Header("UI References")]
+    [Header("Kingdom UI")]
     [SerializeField] private CanvasGroup kingdomHUD;
-    [SerializeField] private Image loadingScreen;
     [SerializeField] private Button storeButton;
+    [SerializeField] private TMP_Text countdownText;
+
+    [Header("Store UI")]
     [SerializeField] private CanvasGroup storeHUD;
     [SerializeField] private TMP_Text woodText;
     [SerializeField] private TMP_Text brickText;
@@ -22,7 +25,9 @@ public class KingdomUIController : MonoBehaviour {
     [SerializeField] private Button storeCloseButton;
     [SerializeField] private Transform storeContent;
     [SerializeField] private GameObject storeItemTemplate;
-    [SerializeField] private Button diceButton;
+
+    [Header("Loading Screen")]
+    [SerializeField] private CanvasGroup loadingScreen;
 
     [Header("Animations")]
     [SerializeField] private float kingdomHUDFadeDuration;
@@ -36,9 +41,8 @@ public class KingdomUIController : MonoBehaviour {
     private Coroutine metalLerpCoroutine;
 
     [Header("Scene Transitions")]
-    [SerializeField] private string nextSceneName;
+    [SerializeField] private string diceSceneName;
     [SerializeField] private float loadingFadeDuration;
-    [SerializeField] private float loadingFadeOpacity;
     private Coroutine loadingFadeCoroutine;
 
     private void Start() {
@@ -60,7 +64,6 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
-        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 1f);
         loadingScreen.gameObject.SetActive(true);
 
         storeButton.onClick.AddListener(OpenStoreHUD);
@@ -68,8 +71,6 @@ public class KingdomUIController : MonoBehaviour {
 
         storeHUD.alpha = 0f;
         storeHUD.gameObject.SetActive(false);
-
-        diceButton.onClick.AddListener(LoadDiceScene);
 
         UpdateWoodCount();
         UpdateBrickCount();
@@ -81,94 +82,31 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
-        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("ReadyStart")) {
+        if (!networkManager.photonView.Owner.CustomProperties.ContainsKey("Loaded")) {
 
-            networkManager.ReadyPlayer();
-
-        } else {
-
-            StartFadeOutLoadingScreen();
-
-        }
-    }
-
-    private void LoadDiceScene() {
-
-        StartFadeOutKingdomHUD(0f);
-
-        if (loadingFadeCoroutine != null) {
-
-            StopCoroutine(loadingFadeCoroutine);
-
-        }
-
-        loadingScreen.color = new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f);
-
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, loadingFadeOpacity), true, nextSceneName));
-
-    }
-
-    public void StartFadeOutLoadingScreen() {
-
-        if (loadingFadeCoroutine != null) {
-
-            StopCoroutine(loadingFadeCoroutine);
-
-        }
-
-        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.color, new Color(loadingScreen.color.r, loadingScreen.color.g, loadingScreen.color.b, 0f), false, ""));
-
-    }
-
-    private IEnumerator FadeLoadingScreen(Color startColor, Color targetColor, bool loadScene, string sceneName) {
-
-        float currentTime = 0f;
-        loadingScreen.gameObject.SetActive(true);
-
-        while (currentTime < loadingFadeDuration) {
-
-            currentTime += Time.deltaTime;
-            loadingScreen.color = Color.Lerp(startColor, targetColor, currentTime / loadingFadeDuration);
-            yield return null;
-
-        }
-
-        loadingScreen.color = targetColor;
-        loadingFadeCoroutine = null;
-
-        if (loadScene) {
-
-            SceneManager.LoadSceneAsync(sceneName);
+            networkManager.SetPlayerProperty(networkManager.photonView, NetworkManager.PlayerProperty.Loaded, true);
 
         } else {
 
-            loadingScreen.gameObject.SetActive(false);
+            CloseLoadingScreen();
 
         }
     }
 
-    private void OpenStoreHUD() {
+    public void SetCountdownText(string text) {
 
-        storeButton.GetComponent<SlidingButton>().DisableSlideIn();
-        diceButton.GetComponent<SlidingButton>().DisableSlideIn();
-
-        UpdateWoodCount();
-        UpdateBrickCount();
-        UpdateMetalCount();
-
-        StartFadeInStoreHud();
+        countdownText.text = text;
 
     }
 
-    public void CloseStoreHUD() {
+    public void LoadDiceScene() {
 
-        storeButton.GetComponent<SlidingButton>().EnableSlideIn();
-        diceButton.GetComponent<SlidingButton>().EnableSlideIn();
-        StartFadeOutStoreHUD();
+        PhotonNetwork.LoadLevel(diceSceneName);
+        OpenLoadingScreen();
 
     }
 
-    public void StartFadeInKingdomHUD() {
+    public void OpenKingdomHUD() {
 
         if (fadeKingdomHUDCoroutine != null) {
 
@@ -180,7 +118,7 @@ public class KingdomUIController : MonoBehaviour {
 
     }
 
-    public void StartFadeOutKingdomHUD(float targetOpacity) {
+    public void CloseKingdomHUD(float targetOpacity) {
 
         if (fadeKingdomHUDCoroutine != null) {
 
@@ -189,7 +127,6 @@ public class KingdomUIController : MonoBehaviour {
         }
 
         storeButton.interactable = false;
-        diceButton.interactable = false;
         fadeKingdomHUDCoroutine = StartCoroutine(FadeKingdomHUD(kingdomHUD.alpha, targetOpacity, false));
 
     }
@@ -212,12 +149,11 @@ public class KingdomUIController : MonoBehaviour {
         if (fadeIn) {
 
             storeButton.interactable = true;
-            diceButton.interactable = true;
 
         }
     }
 
-    public void StartFadeInStoreHud() {
+    private void OpenStoreHUD() {
 
         if (storeFadeCoroutine != null) {
 
@@ -225,12 +161,17 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
-        storeHUD.gameObject.SetActive(true);
+        storeButton.GetComponent<SlidingButton>().DisableSlideIn();
+
+        UpdateWoodCount();
+        UpdateBrickCount();
+        UpdateMetalCount();
+
         storeFadeCoroutine = StartCoroutine(FadeStoreHUD(storeHUD.alpha, storeOpacity, true));
 
     }
 
-    public void StartFadeOutStoreHUD() {
+    public void CloseStoreHUD() {
 
         if (storeFadeCoroutine != null) {
 
@@ -238,6 +179,7 @@ public class KingdomUIController : MonoBehaviour {
 
         }
 
+        storeButton.GetComponent<SlidingButton>().EnableSlideIn();
         storeFadeCoroutine = StartCoroutine(FadeStoreHUD(storeHUD.alpha, 0f, false));
 
     }
@@ -245,6 +187,7 @@ public class KingdomUIController : MonoBehaviour {
     private IEnumerator FadeStoreHUD(float startOpacity, float targetOpacity, bool fadeIn) {
 
         float currentTime = 0f;
+        storeHUD.gameObject.SetActive(true);
 
         while (currentTime < storeFadeDuration) {
 
@@ -337,8 +280,6 @@ public class KingdomUIController : MonoBehaviour {
 
     }
 
-
-
     private IEnumerator LerpMetalCount(int startMetal, int targetMetal) {
 
         float currentTime = 0f;
@@ -354,5 +295,53 @@ public class KingdomUIController : MonoBehaviour {
         metalText.text = targetMetal + "";
         metalLerpCoroutine = null;
 
+    }
+
+    private void OpenLoadingScreen() {
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        CloseKingdomHUD(0f);
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.alpha, 1f, true));
+
+    }
+
+    public void CloseLoadingScreen() {
+
+        if (loadingFadeCoroutine != null) {
+
+            StopCoroutine(loadingFadeCoroutine);
+
+        }
+
+        loadingFadeCoroutine = StartCoroutine(FadeLoadingScreen(loadingScreen.alpha, 0f, false));
+
+    }
+
+    private IEnumerator FadeLoadingScreen(float startOpacity, float targetOpacity, bool fadeIn) {
+
+        float currentTime = 0f;
+        loadingScreen.gameObject.SetActive(true);
+
+        while (currentTime < loadingFadeDuration) {
+
+            currentTime += Time.deltaTime;
+            loadingScreen.alpha = Mathf.Lerp(startOpacity, targetOpacity, currentTime / loadingFadeDuration);
+            yield return null;
+
+        }
+
+        loadingScreen.alpha = targetOpacity;
+        loadingFadeCoroutine = null;
+
+        if (!fadeIn) {
+
+            loadingScreen.gameObject.SetActive(false);
+
+        }
     }
 }

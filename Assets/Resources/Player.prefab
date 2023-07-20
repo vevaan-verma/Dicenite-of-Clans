@@ -168,6 +168,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a70d832712943f46a798cefaf4b6683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  diceSceneName: 
+  kingdomSceneName: 
 --- !u!114 &6275572542150637413
 MonoBehaviour:
   m_ObjectHideFlags: 0
