@@ -1,29 +1,26 @@
+using Photon.Pun;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class PieceController : MonoBehaviour {
+public class PieceController : MonoBehaviourPun {
 
     [Header("References")]
     private PlayerData playerData;
-    private PlayerController playerController;
-    private PieceController pieceController;
-    private GridPlacementController gridPlacementController;
+    private GridData gridData;
 
     [Header("Movement")]
     private Coroutine moveCoroutine;
 
     private void Start() {
 
-        gridPlacementController = FindObjectOfType<GridPlacementController>();
-        playerController = GetComponent<PlayerController>();
-        pieceController = GetComponent<PieceController>();
         playerData = GetComponent<PlayerData>();
 
     }
 
     public void StartMovePlayer(Vector3 targetPosition) {
 
-        if (!playerController.photonView.IsMine) {
+        if (!photonView.IsMine) {
 
             return;
 
@@ -32,6 +29,12 @@ public class PieceController : MonoBehaviour {
         if (moveCoroutine != null) {
 
             StopCoroutine(moveCoroutine);
+
+        }
+
+        if (gridData == null) {
+
+            gridData = FindObjectOfType<GridData>();
 
         }
 
@@ -54,7 +57,17 @@ public class PieceController : MonoBehaviour {
 
         transform.position = new Vector3(targetPosition.x, startPosition.y, targetPosition.z);
         moveCoroutine = null;
-        gridPlacementController.CalculatePlayerMoves(pieceController);
+
+        string text = "";
+        Dictionary<PhotonView, Vector3Int> playerPositions = gridData.GetPlayerPositions();
+
+        foreach (KeyValuePair<PhotonView, Vector3Int> entry in playerPositions) {
+
+            text += entry.Key.ViewID + " " + entry.Value.x + " " + entry.Value.y + " " + entry.Value.z + " ";
+
+        }
+
+        gridData.MovePlayerTo(photonView, targetPosition, false);
 
     }
 }

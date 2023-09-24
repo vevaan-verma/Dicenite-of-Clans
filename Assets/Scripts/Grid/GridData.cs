@@ -1,10 +1,27 @@
+using Photon.Pun;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class GridData {
+public class GridData : MonoBehaviourPun {
 
-    private Dictionary<Vector3Int, PlacementData> placedObjects = new Dictionary<Vector3Int, PlacementData>();
+    [Header("References")]
+    [SerializeField] private GameObject moveIndicatorPrefab;
+    private Grid grid;
+    private GameManager gameManager;
+    private Dictionary<Vector3Int, PlacementData> placedObjects;
+    private Dictionary<PhotonView, Vector3Int> playerPositions;
+
+    private void Awake() {
+
+        DontDestroyOnLoad(gameObject);
+        grid = FindObjectOfType<Grid>();
+        gameManager = FindObjectOfType<GameManager>();
+        placedObjects = new Dictionary<Vector3Int, PlacementData>();
+        playerPositions = new Dictionary<PhotonView, Vector3Int>();
+
+    }
 
     public void AddObjectAt(Vector3Int gridPosition, Vector2Int objectSize, int ID, int objectIndex, float yRotation) {
 
@@ -24,7 +41,145 @@ public class GridData {
         }
     }
 
-    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight, List<Vector3> playerSpawns, Grid grid) {
+    public Dictionary<Vector3Int, PlacementData> GetPlacedObjects() {
+
+        return placedObjects;
+
+    }
+
+    public void SetPlacedObjects(Dictionary<Vector3Int, PlacementData> placedObjects) {
+
+        this.placedObjects = placedObjects;
+
+    }
+
+    public void MovePlayerTo(PhotonView photonView, Vector3 spawnPosition, bool spawn) {
+
+        if (playerPositions.ContainsKey(photonView)) {
+
+            playerPositions.Remove(photonView);
+
+        }
+
+        photonView.transform.position = spawnPosition + new Vector3(0f, photonView.transform.localScale.y, 0f);
+        playerPositions.Add(photonView, grid.WorldToCell(spawnPosition));
+
+        string[] text = new string[playerPositions.Count];
+        int index = 0;
+
+        foreach (KeyValuePair<PhotonView, Vector3Int> entry in playerPositions) {
+
+            text[index] = entry.Key.ViewID + " " + entry.Value.x + " " + entry.Value.y + " " + entry.Value.z;
+            index++;
+
+        }
+
+        if (!spawn) {
+
+            photonView.RPC("UpdatePlayerPositions", RpcTarget.Others, NetworkManager.UpdateType.Reset, text.Length, text);
+
+        }
+
+        CalculatePlayerMoves();
+
+    }
+
+    public Dictionary<PhotonView, Vector3Int> GetPlayerPositions() {
+
+        return playerPositions;
+
+    }
+
+    public void SetPlayerPositions(Dictionary<PhotonView, Vector3Int> playerPositions) {
+
+        this.playerPositions = playerPositions;
+
+    }
+
+    public void CalculatePlayerMoves() {
+
+        int actorNum = PhotonNetwork.LocalPlayer.ActorNumber;
+        PhotonView view = null;
+
+        for (int viewID = actorNum * PhotonNetwork.MAX_VIEW_IDS + 1; viewID < (actorNum + 1) * PhotonNetwork.MAX_VIEW_IDS; viewID++) {
+
+            view = PhotonView.Find(viewID);
+
+            if (view && view.IsMine) {
+
+                break;
+
+            }
+        }
+
+        if (view.IsMine) {
+
+            foreach (MoveIndicatorController moveIndicatorController in FindObjectsOfType<MoveIndicatorController>()) {
+
+                Destroy(moveIndicatorController.gameObject);
+
+            }
+
+            Vector3Int playerPosition = grid.WorldToCell(view.transform.position);
+            HashSet<Vector3Int> validMoves = new HashSet<Vector3Int>();
+            Vector3Int position;
+
+            for (int x = -1; x < 2; x++) {
+
+                position = playerPosition + new Vector3Int(x, 0, 1);
+
+                if (CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false)) {
+
+                    validMoves.Add(position);
+
+                }
+            }
+
+            for (int y = 0; y > -2; y--) {
+
+                position = playerPosition + new Vector3Int(1, 0, y);
+
+                if (CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false)) {
+
+                    validMoves.Add(position);
+
+                }
+            }
+
+            for (int x = 0; x > -2; x--) {
+
+                position = playerPosition + new Vector3Int(x, 0, -1);
+
+                if (CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false)) {
+
+                    validMoves.Add(position);
+
+                }
+            }
+
+            for (int y = 0; y < 2; y++) {
+
+                position = playerPosition + new Vector3Int(-1, 0, y);
+
+                if (CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false)) {
+
+                    validMoves.Add(position);
+
+                }
+            }
+
+            foreach (Vector3Int pos in validMoves) {
+
+                PieceController pieceController = view.GetComponent<PieceController>();
+                pieceController.enabled = true;
+                GameObject moveIndicator = Instantiate(moveIndicatorPrefab, pos, Quaternion.identity);
+                moveIndicator.GetComponent<MoveIndicatorController>().Initialize(pieceController);
+
+            }
+        }
+    }
+
+    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize, float yRotation, bool placementState, int gridWidth, int gridHeight, List<Vector3> playerSpawns, Grid grid, bool randomizingObjects) {
 
         List<Vector3Int> occupiedPositions;
 
@@ -42,25 +197,28 @@ public class GridData {
 
         foreach (Vector3Int position in occupiedPositions) {
 
-            isSpawn = false;
+            if (randomizingObjects) {
 
-            foreach (Vector3 spawn in playerSpawns) {
+                isSpawn = false;
 
-                if (position == grid.WorldToCell(spawn)) {
+                foreach (Vector3 spawn in playerSpawns) {
 
-                    isSpawn = true;
-                    break;
+                    if (position == grid.WorldToCell(spawn)) {
+
+                        isSpawn = true;
+                        break;
+
+                    }
+                }
+
+                if (isSpawn) {
+
+                    return false;
 
                 }
             }
 
-            if (isSpawn) {
-
-                return false;
-
-            }
-
-            if (placedObjects.ContainsKey(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.z < -(gridHeight / 2) || position.z > gridHeight / 2 - 1) {
+            if (placedObjects.ContainsKey(position) || playerPositions.ContainsValue(position) || position.x < -(gridWidth / 2) || position.x > gridWidth / 2 - 1 || position.z < -(gridHeight / 2) || position.z > gridHeight / 2 - 1) {
 
                 return false;
 

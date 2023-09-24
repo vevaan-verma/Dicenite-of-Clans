@@ -4,12 +4,14 @@ using UnityEngine;
 public class DiceSide : MonoBehaviour {
 
     [Header("References")]
+    private GameManager gameManager;
     private PlayerData playerData;
     private DiceController diceController;
     private DiceUIController diceUIController;
 
     private void Awake() {
 
+        gameManager = FindObjectOfType<GameManager>();
         diceController = transform.parent.GetComponent<DiceController>();
         diceUIController = FindObjectOfType<DiceUIController>();
 
@@ -137,8 +139,13 @@ public class DiceSide : MonoBehaviour {
 
                     }
 
-                    diceController.diceUIController.EnableRollButtons();
+                    PhotonView view = diceController.GetRoller();
 
+                    if (view.IsMine) {
+
+                        gameManager.ChangeTurn(view);
+
+                    }
                 }
             }
         } else {

@@ -1,12 +1,14 @@
+using Newtonsoft.Json;
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class GridPlacementController : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private ObjectManager objectManager;
-    [SerializeField] private GameObject moveIndicator;
     private GameManager gameManager;
     private KingdomUIController kingdomUIController;
     private GridInputManager inputManager;
@@ -32,8 +34,7 @@ public class GridPlacementController : MonoBehaviour {
         kingdomUIController = FindObjectOfType<KingdomUIController>();
         inputManager = FindObjectOfType<GridInputManager>();
         audioManager = FindObjectOfType<KingdomAudioManager>();
-
-        gridData = new GridData();
+        gridData = FindObjectOfType<GridData>();
 
         for (int i = 0; i < objectDatabase.objectData.Count; i++) {
 
@@ -65,7 +66,7 @@ public class GridPlacementController : MonoBehaviour {
         }
     }
 
-    public IEnumerator RandomizeGridObjects() {
+    public IEnumerator RandomizeGridObjects(PhotonView masterView) {
 
         randomizingObjects = true;
 
@@ -133,7 +134,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 }
 
-                if (!gridData.CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
+                if (!gridData.CanPlaceObjectAt(grid.WorldToCell(grid.transform.position + new Vector3(x, 0f, y)), Vector2Int.one, 0f, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, true)) {
 
                     buildingState.EndState();
                     continue;
@@ -142,7 +143,7 @@ public class GridPlacementController : MonoBehaviour {
 
                 bool allObjectsUsed = false;
 
-                while (!gridData.CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
+                while (!gridData.CanPlaceObjectAt(grid.WorldToCell(previewSystem.GetPreviewObject().position), objData.size, rotation, true, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, true)) {
 
                     usableObjects.Remove(objData);
 
@@ -217,72 +218,27 @@ public class GridPlacementController : MonoBehaviour {
             }
         }
 
+        Dictionary<Vector3Int, PlacementData> placedObjects = gridData.GetPlacedObjects();
+        string[] text = new string[placedObjects.Count];
+        int index = 0;
+
+        foreach (KeyValuePair<Vector3Int, PlacementData> entry in placedObjects) {
+
+            text[index] = entry.Key.x + " " + entry.Key.y + " " + entry.Key.z + " " + JsonConvert.SerializeObject(entry.Value);
+            index++;
+
+        }
+
+        masterView.RPC("SyncGridData", RpcTarget.Others, text.Length, text);
         StopPlacement();
         randomizingObjects = false;
 
     }
 
-    public void CalculatePlayerMoves(PieceController pieceController) {
+    public void UpdateGridData() {
 
-        foreach (MoveIndicatorController moveIndicatorController in FindObjectsOfType<MoveIndicatorController>()) {
+        gridData = FindObjectOfType<GridData>();
 
-            Destroy(moveIndicatorController.gameObject);
-
-        }
-
-        Vector3Int playerPosition = grid.WorldToCell(pieceController.transform.position);
-        List<Vector3Int> validMoves = new List<Vector3Int>();
-        Vector3Int position;
-
-        for (int x = -1; x < 2; x++) {
-
-            position = playerPosition + new Vector3Int(x, 0, 1);
-
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
-
-                validMoves.Add(position);
-
-            }
-        }
-
-        for (int y = 0; y > -2; y--) {
-
-            position = playerPosition + new Vector3Int(1, 0, y);
-
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
-
-                validMoves.Add(position);
-
-            }
-        }
-
-        for (int x = 0; x > -2; x--) {
-
-            position = playerPosition + new Vector3Int(x, 0, -1);
-
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
-
-                validMoves.Add(position);
-
-            }
-        }
-
-        for (int y = 0; y < 2; y++) {
-
-            position = playerPosition + new Vector3Int(-1, 0, y);
-
-            if (gridData.CanPlaceObjectAt(position, Vector2Int.one, 0f, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
-
-                validMoves.Add(position);
-
-            }
-        }
-
-        foreach (Vector3Int pos in validMoves) {
-
-            Instantiate(moveIndicator, pos, Quaternion.identity).GetComponent<MoveIndicatorController>().Initialize(pieceController);
-
-        }
     }
 
     public void StartPlacement(int ID) {
@@ -301,7 +257,7 @@ public class GridPlacementController : MonoBehaviour {
         gridOverlay.gameObject.SetActive(true);
         buildingState = new PlacementState(gameManager, objectManager, gridData, grid, previewSystem, objectDatabase, ID, audioManager, true);
         inputManager.OnClick += PlaceObject;
-        kingdomUIController.StartFadeOutKingdomHUD(0f);
+        kingdomUIController.CloseKingdomHUD(0f);
 
     }
 
@@ -313,7 +269,7 @@ public class GridPlacementController : MonoBehaviour {
 
         }
 
-        kingdomUIController.StartFadeInKingdomHUD();
+        kingdomUIController.OpenKingdomHUD();
         buildingState.OnAction(grid.WorldToCell(previewSystem.GetPreviewObject().position));
         StopPlacement();
 

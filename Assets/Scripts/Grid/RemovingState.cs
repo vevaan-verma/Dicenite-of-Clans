@@ -44,11 +44,11 @@ public class RemovingState : IBuildingState {
         Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
+        if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false)) {
 
             selectedData = gridData;
 
-        } else if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid)) {
+        } else if (!gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false)) {
 
             selectedData = gridData;
 
@@ -86,7 +86,7 @@ public class RemovingState : IBuildingState {
         Transform previewObject = previewSystem.GetPreviewObject();
         float yRotation = previewObject == null ? 0f : previewObject.rotation.eulerAngles.y;
 
-        return !gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid);
+        return !gridData.CanPlaceObjectAt(gridPosition, Vector2Int.one, yRotation, false, gameManager.GetGridWidth(), gameManager.GetGridHeight(), gameManager.GetPlayerSpawns(), grid, false);
 
     }
 

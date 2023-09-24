@@ -223,13 +223,13 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void SetLoadingText(string text) {
+    private void SetLoadingText(string text) {
 
         loadingText.text = text;
 
     }
 
-    public void SetErrorText(string text) {
+    private void SetErrorText(string text) {
 
         errorText.text = text;
         errorText.color = new Color(errorText.color.r, errorText.color.g, errorText.color.b, 1f);
@@ -276,7 +276,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     private void RandomizeSkybox() {
 
-        int daytime = UnityEngine.Random.Range(0, nightSkyboxOdds);
+        int daytime = Random.Range(0, nightSkyboxOdds);
 
         if (daytime == nightSkyboxOdds) {
 
@@ -361,23 +361,17 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     public override void OnJoinedRoom() {
 
-        GameObject newPlayer = PhotonNetwork.Instantiate(playerPrefab.name, Vector3.zero, Quaternion.identity);
-        newPlayer.name = "Player " + newPlayer.GetComponent<PhotonView>().CreatorActorNr;
-        DontDestroyOnLoad(newPlayer);
-
-        if (PhotonNetwork.IsMasterClient) {
-
-            PhotonNetwork.Instantiate(networkManagerPrefab.name, Vector3.zero, Quaternion.identity);
-
-        }
-
+        DontDestroyOnLoad(PhotonNetwork.Instantiate(playerPrefab.name, Vector3.zero, Quaternion.identity));
         gameManager.UpdateGameState(GameManager.GameState.Waiting);
 
         if (PhotonNetwork.PlayerList.Length == gameManager.GetMaxPlayers()) {
 
+            SetLoadingText("Loading Game...");
+
             if (PhotonNetwork.IsMasterClient) {
 
                 PhotonNetwork.LoadLevel(nextSceneName);
+                loadingScreen.gameObject.SetActive(true);
 
             }
         } else {
@@ -399,7 +393,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
         }
     }
 
-    public void OpenMenuHUD() {
+    private void OpenMenuHUD() {
 
         if (menuHUDFadeCoroutine != null) {
 
@@ -411,7 +405,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void CloseMenuHUD() {
+    private void CloseMenuHUD() {
 
         if (menuHUDFadeCoroutine != null) {
 
@@ -453,7 +447,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void OpenRoomListHUD() {
+    private void OpenRoomListHUD() {
 
         if (roomListHUDFadeCoroutine != null) {
 
@@ -467,17 +461,12 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
         }
 
-        //RoomOptions roomOptions = new RoomOptions();
-        //roomOptions.MaxPlayers = gameManager.GetMaxPlayers();
-        //PhotonNetwork.JoinRandomOrCreateRoom(roomOptions: roomOptions);
-        //StartFadeOutMenuHUD(0f);
-
         CloseMenuHUD();
         roomListHUDFadeCoroutine = StartCoroutine(FadeRoomList(roomListHUD.alpha, 1f, true));
 
     }
 
-    public void CloseRoomListHUD() {
+    private void CloseRoomListHUD() {
 
         if (roomListHUDFadeCoroutine != null) {
 
@@ -519,7 +508,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void OpenCreateRoomHUD() {
+    private void OpenCreateRoomHUD() {
 
         if (createRoomHUDFadeCoroutine != null) {
 
@@ -532,7 +521,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void CloseCreateRoomHUD() {
+    private void CloseCreateRoomHUD() {
 
         if (createRoomHUDFadeCoroutine != null) {
 
@@ -579,7 +568,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void OpenOptionsHUD() {
+    private void OpenOptionsHUD() {
 
         if (optionsHUDFadeCoroutine != null) {
 
@@ -592,7 +581,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void CloseOptionsHUD() {
+    private void CloseOptionsHUD() {
 
         if (optionsHUDFadeCoroutine != null) {
 
@@ -641,7 +630,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void OpenCreditsHUD() {
+    private void OpenCreditsHUD() {
 
         if (creditsHUDFadeCoroutine != null) {
 
@@ -654,7 +643,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void CloseCreditsHUD() {
+    private void CloseCreditsHUD() {
 
         if (creditsHUDFadeCoroutine != null) {
 
@@ -689,7 +678,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
         }
     }
 
-    public void OpenLoadingScreen() {
+    private void OpenLoadingScreen() {
 
         if (loadingFadeCoroutine != null) {
 
@@ -703,7 +692,7 @@ public class MainMenuUIController : MonoBehaviourPunCallbacks {
 
     }
 
-    public void CloseLoadingScreen() {
+    private void CloseLoadingScreen() {
 
         if (loadingFadeCoroutine != null) {
 
